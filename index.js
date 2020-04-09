@@ -580,7 +580,14 @@ client.on('message', message=>{
 
         case 'force':
             if (mygame.admin == message.author.id){
-                //do stuff
+                for (i=0; i<mygame.decks.length; i++){
+                    if (args[1] == mygame.decks[i].user){
+                        value == args [2];
+                        //some stuff
+
+                    }
+                }
+                
             }
             break;
 
