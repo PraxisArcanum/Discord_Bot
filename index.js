@@ -55,12 +55,13 @@ client.savedgames = require('./savedgames.json');
 
 // Define essential classes: Cards, Decks, Game
 class card {
-    constructor(suit,number,praxis,location){
+    constructor(suit,number,praxis,location,user){
         this.suit = suit;
         this.value = number;
         this.praxis = praxis;
         this.location = location;
         this.xp = 0;
+        this.owner = user;
     }
 }
 
@@ -69,44 +70,44 @@ class deck {
         this.user = user;
         this.role = role;
         this.cards = [
-            new card("Clubs","A","blank",'deck'),
-            new card("Hearts","A","blank",'deck'),
-            new card("Diamonds","A","blank",'deck'),
-            new card("Spades","A","blank",'deck'),
-            new card("Clubs","2","blank",'deck'),
-            new card("Hearts","2","blank",'deck'),
-            new card("Diamonds","2","blank",'deck'),
-            new card("Spades","2","blank",'deck'),
-            new card("Clubs","3","blank",'deck'),
-            new card("Hearts","3","blank",'deck'),
-            new card("Diamonds","3","blank",'deck'),
-            new card("Spades","3","blank",'deck'),
+            new card("Clubs","A","blank",'deck',user),
+            new card("Hearts","A","blank",'deck',user),
+            new card("Diamonds","A","blank",'deck',user),
+            new card("Spades","A","blank",'deck',user),
+            new card("Clubs","2","blank",'deck',user),
+            new card("Hearts","2","blank",'deck',user),
+            new card("Diamonds","2","blank",'deck',user),
+            new card("Spades","2","blank",'deck',user),
+            new card("Clubs","3","blank",'deck',user),
+            new card("Hearts","3","blank",'deck',user),
+            new card("Diamonds","3","blank",'deck',user),
+            new card("Spades","3","blank",'deck',user),
 
-            new card("Clubs","4","blank",'deck'),
-            new card("Hearts","4","blank",'deck'),
-            new card("Diamonds","4","blank",'deck'),
-            new card("Spades","4","blank",'deck'),
-            new card("Clubs","5","blank",'deck'),
-            new card("Hearts","5","blank",'deck'),
-            new card("Diamonds","5","blank",'deck'),
-            new card("Spades","5","blank",'deck'),
-            new card("Clubs","6","blank",'reserve'),
-            new card("Hearts","6","blank",'reserve'),
-            new card("Diamonds","6","blank",'reserve'),
-            new card("Spades","6","blank",'reserve'),
+            new card("Clubs","4","blank",'deck',user),
+            new card("Hearts","4","blank",'deck',user),
+            new card("Diamonds","4","blank",'deck',user),
+            new card("Spades","4","blank",'deck',user),
+            new card("Clubs","5","blank",'deck',user),
+            new card("Hearts","5","blank",'deck',user),
+            new card("Diamonds","5","blank",'deck',user),
+            new card("Spades","5","blank",'deck',user),
+            new card("Clubs","6","blank",'reserve',user),
+            new card("Hearts","6","blank",'reserve',user),
+            new card("Diamonds","6","blank",'reserve',user),
+            new card("Spades","6","blank",'reserve',user),
 
-            new card("Clubs","7","blank",'reserve'),
-            new card("Hearts","7","blank",'reserve'),
-            new card("Diamonds","7","blank",'reserve'),
-            new card("Spades","7","blank",'reserve'),
-            new card("Clubs","8","blank",'reserve'),
-            new card("Hearts","8","blank",'reserve'),
-            new card("Diamonds","8","blank",'reserve'),
-            new card("Spades","8","blank",'reserve'),
-            new card("Clubs","9","blank",'reserve'),
-            new card("Hearts","9","blank",'reserve'),
-            new card("Diamonds","9","blank",'reserve'),
-            new card("Spades","9","blank",'reserve')
+            new card("Clubs","7","blank",'reserve',user),
+            new card("Hearts","7","blank",'reserve',user),
+            new card("Diamonds","7","blank",'reserve',user),
+            new card("Spades","7","blank",'reserve',user),
+            new card("Clubs","8","blank",'reserve',user),
+            new card("Hearts","8","blank",'reserve',user),
+            new card("Diamonds","8","blank",'reserve',user),
+            new card("Spades","8","blank",'reserve',user),
+            new card("Clubs","9","blank",'reserve',user),
+            new card("Hearts","9","blank",'reserve',user),
+            new card("Diamonds","9","blank",'reserve',user),
+            new card("Spades","9","blank",'reserve',user)
         ];
         if (role == 'Player'){
             this.cards[12].location = 'xp';
