@@ -187,6 +187,13 @@ function show_cards_in_zone(game,message,embed,zone){
     } else {
         cardsinzone = find_cards_in_location(game.decks[deckid],zone);
     }
+}
+
+function check_card(value, suit){
+    all_values = ['A','2','3','4','5','6','7','8','9'];
+    all_suits = ['Spades','Diamonds','Clubs','Hearts'];
+    return (all_values.includes(value) && all_suits.includes(suit)); 
+}
 
     // Create an embed to send visual feedback of what's in their discard
     embed = new Discord.MessageEmbed()
@@ -583,7 +590,7 @@ client.on('message', message=>{
                 for (i=0; i<mygame.decks.length; i++){
                     if (args[1] == mygame.decks[i].user){
                         value == args [2];
-                        //some stuff
+                        // come back to this after "check card" function
 
                     }
                 }
