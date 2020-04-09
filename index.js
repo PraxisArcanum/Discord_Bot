@@ -26,9 +26,10 @@
 
 
 // Requires and setup
+require('dotenv').config();
 const Discord = require('discord.js');
 const client = new Discord.Client();
-const token = '';
+const token = process.env.DISCORD_BOT_TOKEN || '';
 const PREFIX ='!';
 const fs = require('fs');
 let cardsinhand = [];
