@@ -101,6 +101,13 @@ function find_cards_in_location(deck, loc) {
     return cardids; //returns [] if there are no matches
 }
 
+function create_praxis(deck, cardid, message){
+    let praxis_msg = message.content.substring(message.content.search("praxis")+7, message.content.length);
+    deck.cards[cardid].praxis = praxis_msg;
+    message.channel.send('Added \"'+praxis_msg+'\" as the Praxis for the '+c_value+' of '+c_suit);
+    return;
+}
+
 // Increment XP in cards that are soon to be added to the player deck
 function gain_exp(deck, suit) {
     let cardids = find_cards_in_location(deck, "xp");
@@ -116,6 +123,40 @@ function gain_exp(deck, suit) {
                 return (carddrawn = false); //GMs have no cards in 'xp' so this function should always return false
             }
         }
+    }
+}
+
+// Cut down a list of card indeces to those that match a property.
+function card_ids_that_match_prop(allcardids,deck,property_type,property_name){
+    const matching_indeces = [];
+
+    //if no card ids are specified, it will go through every card in the deck
+    if (allcardids == ''){
+        for (i=0; i<deck.cards.length; i++){
+            allcardids.push(i);
+        }
+    }
+
+    // compare, based on which property was selected
+    switch (property_type.toLowerCase){
+        case 'suit':
+            for (i=1; i<allcardids.length; i++){
+                if (deck.cards[i].suit == property_name)
+                    matching_indeces.push(i);
+            }
+            return matching_indeces;
+        case 'value':
+            for (i=1; i<allcardids.length; i++){
+                if (deck.cards[i].value == property_name)
+                    matching_indeces.push(i);
+            }
+            return matching_indeces;
+        case 'owner':
+            for (i=1; i<allcardids.length; i++){
+                if (deck.cards[i].owner == property_name)
+                    matching_indeces.push(i);
+            }
+            return matching_indeces;
     }
 }
 
@@ -159,10 +200,10 @@ function show_cards_in_zone(game, message, embed, zone) {
     return;
 }
 
-function check_card(value, suit) {
-    all_values = ["A", "2", "3", "4", "5", "6", "7", "8", "9"];
-    all_suits = ["Spades", "Diamonds", "Clubs", "Hearts"];
-    return all_values.includes(value) && all_suits.includes(suit);
+function is_valid_card(value, suit){
+    all_values = ['a','2','3','4','5','6','7','8','9'];
+    all_suits = ['spades','diamonds','clubs','hearts'];
+    return (all_values.includes(value.toLowerCase) && all_suits.includes(suit.toLowerCase)); 
 }
 
 module.exports = {
