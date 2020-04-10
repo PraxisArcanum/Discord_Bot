@@ -28,7 +28,7 @@
 require('dotenv').config();
 const Discord = require('discord.js');
 const client = new Discord.Client();
-const token = process.env.DISCORD_BOT_TOKEN || '';
+const token = process.env.DISCORD_BOT_TOKEN;
 const PREFIX ='!';
 const fs = require('fs');
 let cardsinhand = [];
@@ -156,6 +156,13 @@ function find_cards_in_location(deck, loc){
     return cardids; //returns [] if there are no matches
 }
 
+function create_praxis(deck, cardid, message){
+    let praxis_msg = message.content.substring(message.content.search("praxis")+7, message.content.length);
+    deck.cards[cardid].praxis = praxis_msg;
+    message.channel.send('Added \"'+praxis_msg+'\" as the Praxis for the '+c_value+' of '+c_suit);
+    return;
+}
+
 // Increment XP in cards that are soon to be added to the player deck
 function gain_exp(deck, suit){
     let cardids = find_cards_in_location(deck, 'xp');
@@ -171,6 +178,40 @@ function gain_exp(deck, suit){
                 return carddrawn = false; //GMs have no cards in 'xp' so this function should always return false
             }
         }
+    }
+}
+
+// Cut down a list of card indeces to those that match a property.
+function card_ids_that_match_prop(allcardids,deck,property_type,property_name){
+    const matching_indeces = [];
+
+    //if no card ids are specified, it will go through every card in the deck
+    if (allcardids == ''){
+        for (i=0; i<deck.cards.length; i++){
+            allcardids.push(i);
+        }
+    }
+
+    // compare, based on which property was selected
+    switch (property_type.toLowerCase){
+        case 'suit':
+            for (i=1; i<allcardids.length; i++){
+                if (deck.cards[i].suit == property_name)
+                    matching_indeces.push(i);
+            }
+            return matching_indeces;
+        case 'value':
+            for (i=1; i<allcardids.length; i++){
+                if (deck.cards[i].value == property_name)
+                    matching_indeces.push(i);
+            }
+            return matching_indeces;
+        case 'owner':
+            for (i=1; i<allcardids.length; i++){
+                if (deck.cards[i].owner == property_name)
+                    matching_indeces.push(i);
+            }
+            return matching_indeces;
     }
 }
 
@@ -205,10 +246,10 @@ function show_cards_in_zone(game,message,embed,zone){
     return;
 }
 
-function check_card(value, suit){
-    all_values = ['A','2','3','4','5','6','7','8','9'];
-    all_suits = ['Spades','Diamonds','Clubs','Hearts'];
-    return (all_values.includes(value) && all_suits.includes(suit)); 
+function is_valid_card(value, suit){
+    all_values = ['a','2','3','4','5','6','7','8','9'];
+    all_suits = ['spades','diamonds','clubs','hearts'];
+    return (all_values.includes(value.toLowerCase) && all_suits.includes(suit.toLowerCase)); 
 }
 
 // Passive functions, when the bot starts up
@@ -435,48 +476,49 @@ client.on('message', message=>{
             }
             c_value = args[1];
             c_suit = args[3];
-
-            cardsinhand = [];
+            if (!is_valid_card(c_value,c_suit)){
+                message.channel.send('This is not a valid card. Please check your message for typos');
+                return;
+            }
             deckid = find_deck_id(mygame, message.author.id);
             if (deckid == -1){
                 message.channel.send('You do not have a deck yet, let alone a hand! Get your GM to add you as a player');
                 return;
             } else {
-                for (let i = 0; i<mygame.decks[deckid].cards.length; i++){
-                    if (mygame.decks[deckid].cards[i].location == 'hand'){
-                        cardsinhand.push(i);
-                    }
-                }
-                if (cardsinhand.length < 1){
-                    message.channel.send('I couldn\'t find the ' + c_value + ' of ' + c_suit +'. Make sure there were no typos. Check !hand to see what cards you can play.');
-                }
+                cardsinhand = find_cards_in_location(deckid, 'hand');
             }
-            for (let i=0; i<cardsinhand.length; i++){
-                if (c_value.toLowerCase() == mygame.decks[deckid].cards[cardsinhand[i]].value.toLowerCase() && c_suit.toLowerCase() == mygame.decks[deckid].cards[cardsinhand[i]].suit.toLowerCase()){
-                    console.log('Ding!');
-                    if (args.length > 4){
-                        if (args[4] == 'praxis'){
-                            let praxis_msg = message.content.substring(message.content.search("praxis")+7, message.content.length);
-                            mygame.decks[deckid].cards[cardsinhand[i]].praxis = praxis_msg;
-                            message.channel.send('Added \"'+praxis_msg+'\" as the Praxis for the '+c_value+' of '+c_suit);
-                        }
-                    }
-                    if (mygame.decks[deckid].role == 'GM'){
-                        destination = 'deck';
-                    } else if (mygame.decks[deckid].role == 'Player'){
-                        destination = 'discard';
-                    }
-                    mygame.decks[deckid].cards[cardsinhand[i]].location = destination;
-                    message.channel.send('Played the '+c_value+' of '+c_suit);
+            cardids_matchsuit = card_ids_that_match_prop(cardsinhand, mygame.decks[deckid], 'suit', c_suit.toLowerCase);
+            cardids_matchvalue = card_ids_that_match_prop(cardsinhand, mygame.decks[deckid], 'value', c_value.toLowerCase);
+            
+            const found_card_id = cardids_matchsuit(cardids_matchsuit.indexOf(r=> cardids_matchvalue.includes(r))); // This should find the cards[i] index of the matching card.
+            console.log(found_card_id);
 
-                    let this_made_me_draw_a_card = gain_exp(mygame.decks[deckid],c_suit);
-                    if (this_made_me_draw_a_card){
-                        message.channel.send('You earned enough experience to gain the next card in '+c_suit);
-                    } else {
-                        client.commands.get('draw').execute(message,args,mygame.decks[deckid]);
-                        console.log('drew a card');
-                    }
+            // Determine location
+            if (mygame.decks[deckid].role == 'GM'){
+                destination = 'deck';
+                autodraw = false;
+            } else if (mygame.decks[deckid].role == 'Player'){
+                if (args[args.length-1].toLowerCase() == '!resist'){
+                    desination = 'hand';
+                    autodraw = false;
                 }
+                destination = 'discard';
+                autodraw = true;
+            }
+            mygame.decks[deckid].cards[found_card_id].location = destination;
+            message.channel.send('Played the '+c_value+' of '+c_suit);
+
+            if (args.includes('praxis')){
+                create_praxis(mygame.decks[deckid],found_card_id,args);
+            }
+
+            let this_made_me_draw_a_card = gain_exp(mygame.decks[deckid],c_suit);
+            
+            if (this_made_me_draw_a_card){
+                message.channel.send('You earned enough experience to gain the next card in '+c_suit);
+            } else if (autodraw) {
+                client.commands.get('draw').execute(message,args,mygame.decks[deckid]);
+                console.log('drew a card');
             }
             break;
 
@@ -484,6 +526,8 @@ client.on('message', message=>{
         case 'motif':
             if (args.length > 1){
                 m_suit = args[1]; 
+            } else {
+                message.channel.send('You need to specify a suit, for example, !motif Spades');
             }
             let suitedcards = [];
 
