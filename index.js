@@ -27,6 +27,8 @@
 // Requires and setup
 require('dotenv').config();
 const Discord = require('discord.js');
+const Deck = require("./deckHelpers.js");
+
 const client = new Discord.Client();
 const token = process.env.DISCORD_BOT_TOKEN || '';
 const PREFIX ='!';
@@ -53,168 +55,10 @@ for (const file of commandFiles){
 // Creating a file of saved games
 client.savedgames = require('./savedgames.json');
 
-
-// Define essential classes: Cards, Decks, Game
-class card {
-    constructor(suit,number,praxis,location,user){
-        this.suit = suit;
-        this.value = number;
-        this.praxis = praxis;
-        this.location = location;
-        this.xp = 0;
-        this.owner = user;
-    }
-}
-
-class deck {
-    constructor(user, role){
-        this.user = user;
-        this.role = role;
-        this.cards = [
-            new card("Clubs","A","blank",'deck',user),
-            new card("Hearts","A","blank",'deck',user),
-            new card("Diamonds","A","blank",'deck',user),
-            new card("Spades","A","blank",'deck',user),
-            new card("Clubs","2","blank",'deck',user),
-            new card("Hearts","2","blank",'deck',user),
-            new card("Diamonds","2","blank",'deck',user),
-            new card("Spades","2","blank",'deck',user),
-            new card("Clubs","3","blank",'deck',user),
-            new card("Hearts","3","blank",'deck',user),
-            new card("Diamonds","3","blank",'deck',user),
-            new card("Spades","3","blank",'deck',user),
-
-            new card("Clubs","4","blank",'deck',user),
-            new card("Hearts","4","blank",'deck',user),
-            new card("Diamonds","4","blank",'deck',user),
-            new card("Spades","4","blank",'deck',user),
-            new card("Clubs","5","blank",'deck',user),
-            new card("Hearts","5","blank",'deck',user),
-            new card("Diamonds","5","blank",'deck',user),
-            new card("Spades","5","blank",'deck',user),
-            new card("Clubs","6","blank",'reserve',user),
-            new card("Hearts","6","blank",'reserve',user),
-            new card("Diamonds","6","blank",'reserve',user),
-            new card("Spades","6","blank",'reserve',user),
-
-            new card("Clubs","7","blank",'reserve',user),
-            new card("Hearts","7","blank",'reserve',user),
-            new card("Diamonds","7","blank",'reserve',user),
-            new card("Spades","7","blank",'reserve',user),
-            new card("Clubs","8","blank",'reserve',user),
-            new card("Hearts","8","blank",'reserve',user),
-            new card("Diamonds","8","blank",'reserve',user),
-            new card("Spades","8","blank",'reserve',user),
-            new card("Clubs","9","blank",'reserve',user),
-            new card("Hearts","9","blank",'reserve',user),
-            new card("Diamonds","9","blank",'reserve',user),
-            new card("Spades","9","blank",'reserve',user)
-        ];
-        if (role == 'Player'){
-            this.cards[12].location = 'xp';
-            this.cards[13].location = 'xp';
-            this.cards[14].location = 'xp';
-            this.cards[15].location = 'xp';
-
-            this.cards[16].location = 'reserve';
-            this.cards[17].location = 'reserve';
-            this.cards[18].location = 'reserve';
-            this.cards[19].location = 'reserve';
-        }
-    }
-}
-
-class Praxisgame {
-    constructor(admin){
-        this.ID = "0001";
-        this.admin = admin;
-        this.session = -1;
-        this.decks = [new deck(admin,"GM")];
-    }
-};
-
-// make sure the requesting player has a deck in the game and return its index
-function find_deck_id(inst_game, new_id){
-    let deckid = -1;
-    for (let i=0; i<inst_game.decks.length; i++){
-        if (inst_game.decks[i].user == new_id){
-            deckid = i;
-            break;
-        }
-    }
-    return deckid; //returns -1 if there are no matches
-}
-
-// find all the indexes of cards in a location (hand, discard, etc)
-function find_cards_in_location(deck, loc){
-    let cardids = [];
-    for (let i=0; i<deck.cards.length; i++){
-        if (deck.cards[i].location == loc){
-            cardids.push(i);
-        }
-    }
-    return cardids; //returns [] if there are no matches
-}
-
-// Increment XP in cards that are soon to be added to the player deck
-function gain_exp(deck, suit){
-    let cardids = find_cards_in_location(deck, 'xp');
-    for (i = 0; i<cardids.length; i++){
-        if (deck.cards[cardids[i]].suit == suit){
-            let theactualid = cardids[i];
-            deck.cards[theactualid].xp += 1;
-            if (deck.cards[theactualid].xp == deck.cards[theactualid].value){
-                deck.cards[theactualid].location = 'hand'; // move card to hand
-                deck.cards[theactualid+4].location = 'xp'; // move next card to xp
-                return carddrawn = true;
-            } else {
-                return carddrawn = false; //GMs have no cards in 'xp' so this function should always return false
-            }
-        }
-    }
-}
-
-// Show all the cards in a particular zone in an embed
-function show_cards_in_zone(game,message,embed,zone){
-    let cardsinzone = [];
-    let infotext = [];
-
-    // Find the deck corresponding to the user who asked
-    deckid = find_deck_id(game, message.author.id);
-    if (deckid == -1){
-        message.channel.send('You do not have a deck yet, let alone a '+zone+'! Get your GM to add you as a player');
-        return;
-    } else {
-        cardsinzone = find_cards_in_location(game.decks[deckid],zone);
-    }
-    // Create an embed to send visual feedback of what's in their discard
-    embed = new Discord.MessageEmbed()
-    .setTitle('Your '+game.decks[deckid].role + ' '+zone)
-    .setColor(0xF1C40F);
-
-    for (let i = 0; i<cardsinzone.length; i++){
-        if (zone == 'xp'){
-            infotext = game.decks[deckid].cards[cardsinzone[i]].xp;
-        } else {
-            infotext = game.decks[deckid].cards[cardsinzone[i]].praxis;
-        }
-        embed.addField((game.decks[deckid].cards[cardsinzone[i]].value + ' of ' + 
-        game.decks[deckid].cards[cardsinzone[i]].suit),infotext,true);
-    }
-    message.channel.send(embed);
-    return;
-}
-
-function check_card(value, suit){
-    all_values = ['A','2','3','4','5','6','7','8','9'];
-    all_suits = ['Spades','Diamonds','Clubs','Hearts'];
-    return (all_values.includes(value) && all_suits.includes(suit)); 
-}
-
 // Passive functions, when the bot starts up
 client.on('ready', () =>{
     console.log('This bot is online!');
-    mygame = new Praxisgame('none');
+    mygame = new Deck.Praxisgame('none');
 })
 
 // Triggers on messages coming in
@@ -233,7 +77,7 @@ client.on('message', message=>{
 
 
         case 'check':
-            deckid = find_deck_id(mygame, message.author.id);
+            deckid = Deck.find_deck_id(mygame, message.author.id);
             embed = new Discord.MessageEmbed();
             client.commands.get('check').execute(message,args,mygame.decks[deckid],embed);
             break;
@@ -249,9 +93,9 @@ client.on('message', message=>{
                         message.channel.send('Could not add '+newplayerid);
                         break; // not an actual user id
                     }
-                    let deckid = find_deck_id(mygame, newplayerid);
+                    let deckid = Deck.find_deck_id(mygame, newplayerid);
                     if (deckid == -1){
-                        mygame.decks[mygame.decks.length] = new deck(newplayerid,'Player');
+                        mygame.decks[mygame.decks.length] = new Deck.deck(newplayerid,'Player');
                         message.channel.send('A new player deck was made for <@!'+newplayerid+'>. Welcome to the game!');
                     } else {
                         console.log(newplayerid);
@@ -265,7 +109,7 @@ client.on('message', message=>{
         
 
         case 'draw':
-            deckid = find_deck_id(mygame, message.author.id);
+            deckid = Deck.find_deck_id(mygame, message.author.id);
             draw_n = parseInt(args[1]);
 
             if (deckid == -1){
@@ -297,7 +141,7 @@ client.on('message', message=>{
             switch (args[1].toLowerCase()){
                 case 'game':
                     if (mygame.admin == 'none'){
-                        mygame = new Praxisgame(message.author.id);
+                        mygame = new Deck.Praxisgame(message.author.id);
                         message.channel.send('<@!'+ message.author.id +'>, Started GMing a new game of Praxis Arcanum! \n'+'Add new players by typing !add @player.');
                     } else {
                         message.channel.send('It looks like there is already a game in session, hosted by <@!'+mygame.admin+'>. Ask them to !save and !close game first.');
@@ -317,14 +161,14 @@ client.on('message', message=>{
                     }
                     if (message.author.id == mygame.admin){ //only game admins can make new decks for people
 
-                        let deckid = find_deck_id(mygame, playerid);
+                        let deckid = Deck.find_deck_id(mygame, playerid);
                         if (deckid == -1){ //if they don't already have a deck...
                             console.log(playerid);
                             console.log(mygame.decks.length);
                             message.channel.send('<@!'+playerid+'> is not a current player of the game. Use !add @player. !new deck should only be used to remake an existing deck.');
                             return;
                         } else { //if they do have a deck
-                            mygame.decks[mygame.decks[deckid]] = new deck(playerid,mygame.decks[deckid].role);
+                            mygame.decks[mygame.decks[deckid]] = new Deck.deck(playerid,mygame.decks[deckid].role);
                             message.channel.send('New player deck was remade for <@!'+playerid+'>');
                             return;
                         }
@@ -345,9 +189,9 @@ client.on('message', message=>{
                     
                     for (i = 0; i < mygame.decks.length; i++){
                         // send cards in hand, lost, discard back to deck. Keep cards in xp and reserve.
-                        let c_idx = find_cards_in_location(mygame.decks[i],'hand').concat(
-                            find_cards_in_location(mygame.decks[i],'lost').concat(
-                                find_cards_in_location(mygame.decks[i],'discard')));
+                        let c_idx = Deck.find_cards_in_location(mygame.decks[i],'hand').concat(
+                            Deck.find_cards_in_location(mygame.decks[i],'lost').concat(
+                                Deck.find_cards_in_location(mygame.decks[i],'discard')));
                         
                         for (j = 0; j<c_idx.length; j++) {
                             let cardx = c_idx[j];
@@ -387,43 +231,43 @@ client.on('message', message=>{
             
         case 'hand': // Shows the player their hand
             embed = new Discord.MessageEmbed()    
-            show_cards_in_zone(mygame,message,embed,'hand');
+            Deck.show_cards_in_zone(mygame,message,embed,'hand');
             break;
 
         
         case 'deck': // Shows the player their hand
             embed = new Discord.MessageEmbed()    
-            show_cards_in_zone(mygame,message,embed,'deck');
+            Deck.show_cards_in_zone(mygame,message,embed,'deck');
             break;
 
 
         case 'discard': // Shows the player their discard
             embed = new Discord.MessageEmbed()    
-            show_cards_in_zone(mygame,message,embed,'discard');
+            Deck.show_cards_in_zone(mygame,message,embed,'discard');
             break;
 
 
         case 'reserve': // Shows the player their reserve
             embed = new Discord.MessageEmbed()    
-            show_cards_in_zone(mygame,message,embed,'reserve');
+            Deck.show_cards_in_zone(mygame,message,embed,'reserve');
             break;
 
         
         case 'xp': // Shows the player their reserve
             embed = new Discord.MessageEmbed()    
-            show_cards_in_zone(mygame,message,embed,'xp');
+            Deck.show_cards_in_zone(mygame,message,embed,'xp');
             break;
 
 
         case 'lost': // Shows the player their lost cards
             embed = new Discord.MessageEmbed()    
-            show_cards_in_zone(mygame,message,embed,'lost');
+            Deck.show_cards_in_zone(mygame,message,embed,'lost');
             break;
 
 
         case 'discard': // Shows the player their xp
             embed = new Discord.MessageEmbed()    
-            show_cards_in_zone(mygame,message,embed,'xp');
+            Deck.show_cards_in_zone(mygame,message,embed,'xp');
             break;
             
 
@@ -437,7 +281,7 @@ client.on('message', message=>{
             c_suit = args[3];
 
             cardsinhand = [];
-            deckid = find_deck_id(mygame, message.author.id);
+            deckid = Deck.find_deck_id(mygame, message.author.id);
             if (deckid == -1){
                 message.channel.send('You do not have a deck yet, let alone a hand! Get your GM to add you as a player');
                 return;
@@ -488,7 +332,7 @@ client.on('message', message=>{
             let suitedcards = [];
 
             cardsinhand = [];
-            deckid = find_deck_id(mygame, message.author.id);
+            deckid = Deck.find_deck_id(mygame, message.author.id);
             if (deckid == -1){
                 message.channel.send('You do not have a deck yet, let alone a hand! Get your GM to add you as a player');
                 return;
@@ -539,8 +383,8 @@ client.on('message', message=>{
                 l_sui_1 = args[4];
                 l_val_2 = args[6];
                 l_sui_2 = args[8];
-                deckid = find_deck_id(mygame,message.author.id);
-                cardids = find_cards_in_location(mygame.decks[deckid],'discard');
+                deckid = Deck.find_deck_id(mygame,message.author.id);
+                cardids = Deck.find_cards_in_location(mygame.decks[deckid],'discard');
 
                 for (i = 0; i<cardids.length; i++){
                     if ( (mygame.decks[deckid].cards[cardids[i]].value==l_val_1)&&(mygame.decks[deckid].cards[cardids[i]].suit==l_sui_1) || 
@@ -599,7 +443,7 @@ client.on('message', message=>{
 
         case 'close':
             if (args[1] == 'game' && message.author.id == mygame.admin){
-                mygame = new Praxisgame('none');
+                mygame = new Deck.Praxisgame('none');
                 message.channel.send('Your game is now closed - Thanks for playing! Anyone else can now start their own game.')
             }
             break;
