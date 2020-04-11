@@ -69,6 +69,7 @@ class deck {
     constructor(user, role){
         this.user = user;
         this.role = role;
+        this.setup_complete = false;
         this.cards = [
             new card("Clubs","A","blank",'deck',user),
             new card("Hearts","A","blank",'deck',user),
@@ -133,6 +134,29 @@ class Praxisgame {
     }
 };
 
+const worldbuilding_prompts = [
+    'What is a prominent theme, element, or location of the game? What tropes does that bring to mind?',
+    'What is an important piece of technology in the world? How does it work?',
+    'What is supernatural about the world? This will be \"The Weird\". Who has access?',
+    'What is the cost or limit to wielding the Weird? What happens when those limits are reached?',
+    'What is dangerous about weilding the Weird? Who is most vulnerable?',
+    'What is the nature of a current or recent conflict? How divided are people?',
+    'What is one of the deadliest hazards of the world? How have you adapted?',
+    'What important faction exists and what do they represent? Are there rival factions?',
+    'What is a secret, unknown to you, that someone in the world knows? How would one learn this secret?',
+    'What is the most valuable good or service and why? What kind of risks are taken to acquire it?',
+    'Who is a figure of authority in the world. What gives them their authority?',
+    'What goal do you collectively seek to accomplish? How do you measure success?',
+    'Who opposes you in your goal? What is their agenda?'
+];
+
+const characterbuilding_prompts = [
+    'Where is your character from? What made you leave?',
+    'What tool do you carry with you that has helped you get out of a jam? How did you learn to use it?',
+    'What does it mean for you to wield \"The Weird\"? What consequences come when you use it?',
+    'What motivated you to devote yourself to your goal? What did you have to lose?'
+]
+
 // make sure the requesting player has a deck in the game and return its index
 function find_deck_id(inst_game, new_id){
     let deckid = -1;
@@ -156,10 +180,17 @@ function find_cards_in_location(deck, loc){
     return cardids; //returns [] if there are no matches
 }
 
-function create_praxis(card, message){
+function create_praxis(card, message, c_value, c_suit){
     let praxis_msg = message.content.substring(message.content.search("praxis")+7, message.content.length);
     card.praxis = praxis_msg;
     message.channel.send('Added \"'+praxis_msg+'\" as the Praxis for the '+c_value+' of '+c_suit);
+    return;
+}
+
+function add_answer(card, message, c_value, c_suit){
+    let answer_msg = message.content.substring(message.content.search("answer")+7, message.content.length);
+    card.praxis = answer_msg;
+    message.channel.send('Added \"'+answer_msg+'\" as the answer');
     return;
 }
 
@@ -430,6 +461,11 @@ client.on('message', message=>{
                     }
                     mygame.session += 1;
                     message.channel.send('Now starting Episode ' + mygame.session);
+                    if (mygame.session == 0){
+                        message.channel.send('Session Zero requires the completion of a Worldbuilding questionnaire. '+
+                        'Discuss your answers to the following questions. The GM will !answer with a summarized version.');
+                        message.channel.send(worldbuilding_prompts[0]);
+                    }
                     break;
                 }
             break;
@@ -525,13 +561,15 @@ client.on('message', message=>{
                 message.channel.send('You do not have a deck yet, let alone a hand! Get your GM to add you as a player');
                 return;
             } else {
-                cardsinhand = find_cards_in_location(deckid, 'hand');
+                cardsinhand = find_cards_in_location(mygame.decks[deckid], 'hand');
             }
-            cardids_matchsuit = card_ids_that_match_prop(cardsinhand, mygame.decks[deckid], 'suit', c_suit.toLowerCase);
-            cardids_matchvalue = card_ids_that_match_prop(cardsinhand, mygame.decks[deckid], 'value', c_value.toLowerCase);
-            
-            const found_card_id = cardids_matchsuit(cardids_matchsuit.indexOf(r=> cardids_matchvalue.includes(r))); // This should find the cards[i] index of the matching card.
-            console.log(found_card_id);
+            foundcards = mygame.decks[deckid].cards.filter(card => card.value.toLowerCase() == c_value.toLowerCase() && card.suit.toLowerCase() == c_suit.toLowerCase() 
+            && card.location.toLowerCase() == 'hand');
+
+            if (foundcards.length != 1){
+                message.channel.send('The card you requested wasn\'t in hand.');
+                return;
+            }
 
             // Determine location
             if (mygame.decks[deckid].role == 'GM'){
@@ -545,11 +583,11 @@ client.on('message', message=>{
                 destination = 'discard';
                 autodraw = true;
             }
-            mygame.decks[deckid].cards[found_card_id].location = destination;
+            foundcards[0].location = destination;
             message.channel.send('Played the '+c_value+' of '+c_suit);
 
             if (args.includes('praxis')){
-                create_praxis(mygame.decks[deckid].cards[found_card_id],message);
+                create_praxis(foundcards[0],message, c_value, c_suit);
             }
 
             let this_made_me_draw_a_card = gain_exp(mygame.decks[deckid],c_suit);
@@ -600,7 +638,7 @@ client.on('message', message=>{
                         ', '+mygame.decks[deckid].cards[suitedcards[1]].value+
                         ', and the '+mygame.decks[deckid].cards[suitedcards[2]].value+' of '+m_suit);
 
-                        this_made_me_draw_a_card = gain_exp(mygame.decks[deckid],m_suit);
+                        const this_made_me_draw_a_card = gain_exp(mygame.decks[deckid],m_suit);
                         if (this_made_me_draw_a_card){
                             message.channel.send('You earned enough experience to gain the next card in '+m_suit);
                         } else {
@@ -713,7 +751,7 @@ client.on('message', message=>{
                         message.channel.send('The ' + c_value + ' of ' + c_suit + 'was forced to the ' + args[6]);
                         break;
                     case 'praxis':
-                        create_praxis(forcedcard[0],message);
+                        create_praxis(forcedcard[0],message, c_value, c_suit);
                         break;
                     case 'value':
                         const possible_values = ['a','2','3','4','5','6','7','8','9'];
@@ -745,6 +783,55 @@ client.on('message', message=>{
                 message.channel.send('Your game is now closed - Thanks for playing! Anyone else can now start their own game.')
             }
             break;
+
+
+        case 'answer':
+            if (mygame.session == 0){
+                deckid = find_deck_id(mygame,message.author.id);
+                if (deckid == -1){
+                    message.channel.send('You aren\'t listed as a player to this game. First, !add @yourself to the game.');
+                    return;
+                }
+                if (mygame.decks[deckid].setup_complete){
+                    message.channel.send('Looks like you already completed your deck for Episode Zero. Wait for your GM to start a !new session');
+                    return;
+                } else {
+                    if (mygame.decks[deckid].role == 'GM'){
+                        cardorder = [2,0,3,1,7,5,4,6,9,10,11,13,8];
+                        for (i = 0; i < cardorder.length; i++){
+                            if (mygame.decks[deckid].cards[cardorder[i]].praxis == 'blank'){
+                                add_answer(mygame.decks[deckid].cards[cardorder[i]],message);
+                                message.channel.send(worldbuilding_prompts[i+1]);
+                                return;
+                            }
+                        }
+                        mygame.decks[deckid].setup_complete = true;
+                        message.channel.send('You\'ve completed your Session Zero worldbuilding questionaire. '+
+                        'Now, each player should submit their !answer to the following prompts to define their own starting Praxes!');
+                        message.channel.send(characterbuilding_prompts[0]);
+                        return;
+                    } else if (mygame.decks[deckid].role == 'Player' && mygame.decks[find_deck_id(mygame,mygame.admin)].setup_complete){ //needs player incomplete, GM complete
+                        cardorder = [2,0,3,1];
+                        for (var cardid in cardorder){
+                            if (mygame.decks[deckid].cards[cardid].praxis == 'blank'){
+                                add_answer(mygame.decks[deckid].cards[cardid],message);
+                                message.channel.send(characterbuilding_prompts[cardorder.findIndex(cardid)]);
+                                return;
+                            }
+                            mygame.decks[deckid].setup_complete = true;
+                            message.channel.send('You\'ve completed your Session Zero character questionaire. ' +
+                            'Now, each player should discuss how their know at least one other PC. Then the GM can start the !new session!');
+                            return;
+                        }
+                    } else {
+                        message.channel.send('Please wait for the GM to finish their !answer to the GM worldbuilding first.');
+                        return;
+                    }
+                }
+            } else {
+                message.channel.send('This command only works in Session Zero.');
+                return;
+            }
 
 
 
