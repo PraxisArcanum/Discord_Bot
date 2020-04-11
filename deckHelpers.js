@@ -155,22 +155,22 @@ function gain_exp(deck, suit) {
 
 // Cut down a list of card indeces to those that match a property.
 function card_ids_that_match_prop(
-    allcardids,
     deck,
     property_type,
-    property_name
+    property_name,
+    all_card_ids = []
 ) {
     //if no card ids are specified, it will go through every card in the deck
-    if (allcardids.length == 0) {
+    if (all_card_ids.length == 0) {
         for (i = 0; i < deck.cards.length; i++) {
-            allcardids.push(i);
+            all_card_ids.push(i);
         }
     }
 
     // compare, based on which property was selected
     const matching_indeces = [];
     const prop = property_type.toLowerCase();
-    for (i = 1; i < allcardids.length; i++) {
+    for (i = 1; i < all_card_ids.length; i++) {
         if (deck.cards[i][prop] == property_name) {
             matching_indeces.push(i);
         }
