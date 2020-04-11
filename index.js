@@ -336,6 +336,11 @@ client.on('message', message=>{
 
         case 'play':
             // confirm we have the card
+            // instead of this being fixed in place, we could have it look for "of", and choose args[n-1], args[n+1]? Might be weird. Maybe only if the fixed attempt doesn't work?
+            let do_resist = message.content.indexOf('-resist');
+            let do_help = message.content.indexOf('-help');
+            let do_praxis = message.content.indexOf('-praxis');
+
             if (args.length<4){
                 message.channel.send('Please specify the card by number and suit (i.e. !play A of Spades)');
                 return;
@@ -356,7 +361,7 @@ client.on('message', message=>{
                 cardsinhand = Deck.find_cards_in_location(mygame.decks[deckid], 'hand');
             }
             foundcards = mygame.decks[deckid].cards.filter(card => card.value.toLowerCase() == c_value.toLowerCase() && card.suit.toLowerCase() == c_suit.toLowerCase() 
-            && card.location.toLowerCase() == 'hand');
+            && card.location.toLowerCase() == 'hand'); // this should only return one card
 
             if (foundcards.length != 1){
                 message.channel.send('The card you requested wasn\'t in hand.');
@@ -365,10 +370,13 @@ client.on('message', message=>{
 
             // Determine location
             if (mygame.decks[deckid].role == 'GM'){
+                if (do_resist != -1 || do_help != -1) {
+                    message.channel.send('GMs shouldn\'t be resisting or helping. Silly GM. Those moves are for players!');
+                }
                 destination = 'deck';
                 autodraw = false;
             } else if (mygame.decks[deckid].role == 'Player'){
-                if (args[args.length-1].toLowerCase() == '!resist'){
+                if (do_resist != -1){
                     desination = 'hand';
                     autodraw = false;
                 }
@@ -381,14 +389,29 @@ client.on('message', message=>{
             if (args.includes('praxis')){
                 Deck.create_praxis(foundcards[0],message, c_value, c_suit);
             }
+            console.log(do_help);
 
-            let this_made_me_draw_a_card = Deck.gain_exp(mygame.decks[deckid],c_suit);
-            
+            let this_made_me_draw_a_card = false;
+            if (do_help != -1){
+                this_made_me_draw_a_card = Deck.gain_exp(mygame.decks[deckid],c_suit);
+            } else {
+                this_made_me_draw_a_card = false;
+            }
+
             if (this_made_me_draw_a_card){
                 message.channel.send('You earned enough experience to gain the next card in '+c_suit);
             } else if (autodraw) {
                 client.commands.get('draw').execute(message,args,mygame.decks[deckid]);
                 console.log('drew a card');
+            }
+
+            if (do_help != -1){
+                mygame.lastcheck = new Discord.MessageEmbed()
+                .addField(message.author.username + '\'s Help Card',foundcards[0].name(),true)
+                .addField('Praxis',foundcards[0].praxis,true)
+                .addField('\u200B','\u200B',true);
+
+                message.channel.send(curr_game.lastcheck);
             }
             break;
 
