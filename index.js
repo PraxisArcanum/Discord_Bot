@@ -34,13 +34,12 @@ const fs = require('fs');
 let cardsinhand = [];
 let cardsindiscard = [];
 let embed = new Discord.MessageEmbed();
+var all_games = [];
 var mygame;
 let waiting = {
     onReply: false,
     user: 'none'
 }
-
-
 
 // Creating a new collection of commands, in the appropriate folder
 client.commands = new Discord.Collection();
@@ -125,11 +124,12 @@ class deck {
 }
 
 class Praxisgame {
-    constructor(admin){
-        this.ID = "0001";
+    constructor(admin, messageID, chID){
+        this.ID = messageID;
         this.admin = admin;
         this.session = -1;
         this.decks = [new deck(admin,"GM")];
+        this.channelID = chID;
     }
 };
 
@@ -255,15 +255,26 @@ function is_valid_card(value, suit){
 // Passive functions, when the bot starts up
 client.on('ready', () =>{
     console.log('This bot is online!');
-    mygame = new Praxisgame('none');
 })
 
 // Triggers on messages coming in
 client.on('message', message=>{
-    if (waiting.onReply == true && waiting.user == message.author.id){
-        //do stuff, not sure if this is the best way to do this...
+
+    if (message.content[0] != PREFIX){ return }; // Unless you start with !, you're not talking to me.
+    console.log(message.content);
+
+    current_game = all_games.filter(game => game.channelID == message.channel.id); // Make sure that there is a game associated with this channel
+    if (current_game.length > 1){
+        message.channel.send('There are too many games associated with this channel. This is a bug. Honestly, this command should never execute.');
+        return;
     }
-    if (message.content[0] != PREFIX){ return };
+    if (current_game.length < 1){ // if no game was ever made for this channel...
+        mygame = new Praxisgame('none','-1',message.channel.id);
+        all_games.push(mygame);
+    } else {
+        mygame = current_game[0];
+    }
+
     let args = message.content.substring(PREFIX.length).split(" "); //I assume this mean args are split by spaces
     switch (args[0].toLowerCase()){
         
@@ -338,7 +349,9 @@ client.on('message', message=>{
             switch (args[1].toLowerCase()){
                 case 'game':
                     if (mygame.admin == 'none'){
-                        mygame = new Praxisgame(message.author.id);
+                        thisgameindex = all_games.findIndex(game => game.channelID == message.channel.id);
+                        mygame = new Praxisgame(message.author.id,message.id,message.channel.id);
+                        all_games[thisgameindex] = mygame;
                         message.channel.send('<@!'+ message.author.id +'>, Started GMing a new game of Praxis Arcanum! \n'+'Add new players by typing !add @player.');
                     } else {
                         message.channel.send('It looks like there is already a game in session, hosted by <@!'+mygame.admin+'>. Ask them to !save and !close game first.');
@@ -600,7 +613,7 @@ client.on('message', message=>{
 
         case 'save':
             if (message.author.id == mygame.admin){
-                client.savedgames [message.author.id+' in '+message.channel.guild.id] = {
+                client.savedgames [message.author.id+' in '+message.channel.id] = {
                     game: mygame
                 }
                 fs.writeFileSync('./savedgames.json',JSON.stringify(client.savedgames, null, 4));
@@ -612,12 +625,22 @@ client.on('message', message=>{
 
 
         case 'load':
-            //console.log(message.author.id);
-            //console.log()
             if (mygame.admin != 'none'){
-                message.channel.send('Looks like <@!'+mygame.admin+'> has an active game going. Ask them to !close their game first');
+                message.channel.send('Looks like <@!'+mygame.admin+'> has an active game going. Ask them to !save and !close their game first');
             } else {
-                mygame = client.savedgames [message.author.id+' in '+message.channel.guild.id].game;
+                thisgameindex = all_games.findIndex(game => game.channelID == message.channel.id);
+                attempt_to_load = client.savedgames[message.author.id + ' in ' + message.channel.id];
+
+                if (typeof attempt_to_load == 'undefined'){
+                    message.channel.send('Failure to load game. You either have no saved games, or are in the wrong channel.'+
+                    'If you would like to move a game from another channel to this one, send a command using the !migrate function from that original channel.');
+                    console.log(message.author.id + ' in ' + message.channel.id);
+                    return;
+                }
+
+                mygame = client.savedgames [message.author.id+' in '+message.channel.id].game;
+                all_games[thisgameindex] = mygame;
+                
                 message.channel.send('Loaded your previous game, ID: '+mygame.ID);
                 for (i=0; i<mygame.decks.length; i++){
                     message.channel.send(mygame.decks[i].role + ' ' + i + ': <@!' + mygame.decks[i].user + '>');
@@ -643,7 +666,11 @@ client.on('message', message=>{
 
         case 'close':
             if (args[1] == 'game' && message.author.id == mygame.admin){
-                mygame = new Praxisgame('none');
+
+                thisgameindex = all_games.findIndex(game => game.channelID == message.channel.id);
+                mygame = new Praxisgame('none','-1',message.channel.id);
+                all_games[thisgameindex] = mygame;
+
                 message.channel.send('Your game is now closed - Thanks for playing! Anyone else can now start their own game.')
             }
             break;
