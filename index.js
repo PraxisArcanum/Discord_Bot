@@ -744,7 +744,7 @@ client.on('message', message=>{
                 
                 switch (args[5].toLowerCase()){
                     case 'location':
-                        const possible_locations = ['hand','deck','xp','discard','lost','reserve'];
+                        const possible_locations = ['hand','deck','xp','discard','lost','reserve']; //TODO: These locations, along with values and suits, should be constants defined in one common location.
                         if (possible_locations.includes(args[6].toLowerCase())){
                             forcedcard[0].location = args[6];
                         }
@@ -797,31 +797,38 @@ client.on('message', message=>{
                     return;
                 } else {
                     if (mygame.decks[deckid].role == 'GM'){
-                        cardorder = [2,0,3,1,7,5,4,6,9,10,11,13,8];
+                        cardorder = [2,0,3,1,7,5,4,6,9,10,11,13,8]; //TODO: This is fragile, may cause a bug at some point.
                         for (i = 0; i < cardorder.length; i++){
                             if (mygame.decks[deckid].cards[cardorder[i]].praxis == 'blank'){
                                 add_answer(mygame.decks[deckid].cards[cardorder[i]],message);
-                                message.channel.send(worldbuilding_prompts[i+1]);
-                                return;
+                                if (i+1 < cardorder.length) {
+                                    message.channel.send(worldbuilding_prompts[i+1]); //TODO: Tries to send an empty message after last question which causes error.
+                                    return;
+                                } else {
+                                    mygame.decks[deckid].setup_complete = true;
+                                    message.channel.send('You\'ve completed your Session Zero worldbuilding questionaire. '+
+                                    'Now, each player should submit their !answer to the following prompts to define their own starting Praxes!');
+                                    message.channel.send(characterbuilding_prompts[0]);
+                                    return;
+                                }
                             }
                         }
-                        mygame.decks[deckid].setup_complete = true;
-                        message.channel.send('You\'ve completed your Session Zero worldbuilding questionaire. '+
-                        'Now, each player should submit their !answer to the following prompts to define their own starting Praxes!');
-                        message.channel.send(characterbuilding_prompts[0]);
-                        return;
                     } else if (mygame.decks[deckid].role == 'Player' && mygame.decks[find_deck_id(mygame,mygame.admin)].setup_complete){ //needs player incomplete, GM complete
                         cardorder = [2,0,3,1];
                         for (var cardid in cardorder){
                             if (mygame.decks[deckid].cards[cardid].praxis == 'blank'){
                                 add_answer(mygame.decks[deckid].cards[cardid],message);
-                                message.channel.send(characterbuilding_prompts[cardorder.findIndex(cardid)]);
-                                return;
-                            }
-                            mygame.decks[deckid].setup_complete = true;
-                            message.channel.send('You\'ve completed your Session Zero character questionaire. ' +
-                            'Now, each player should discuss how their know at least one other PC. Then the GM can start the !new session!');
-                            return;
+                                
+                                if (i+1 < cardorder.length) {
+                                    message.channel.send(characterbuilding_prompts[cardorder.findIndex(cardid)]);
+                                    return;
+                                } else {
+                                    mygame.decks[deckid].setup_complete = true;
+                                    message.channel.send('You\'ve completed your Session Zero character questionaire. ' +
+                                    'Now, each player should discuss how their know at least one other PC. Then the GM can start the !new session!');
+                                    return;
+                                }   
+                            }                            
                         }
                     } else {
                         message.channel.send('Please wait for the GM to finish their !answer to the GM worldbuilding first.');
