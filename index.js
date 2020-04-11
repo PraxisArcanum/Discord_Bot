@@ -21,7 +21,6 @@
 // typo in reshuffle
 // add cards to GM deck
 // draw same card in check
-// one game across all servers
 
 
 // Requires and setup
