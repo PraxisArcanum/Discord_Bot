@@ -539,38 +539,29 @@ client.on('message', message=>{
                     return;
                 }
                 
+                const possible_values = {
+                    location: ['hand','deck','xp','discard','lost','reserve'],
+                    value: ['a','2','3','4','5','6','7','8','9'],
+                    suit: ['clubs','spades','diamonds','hearts'],
+                };
                 const property = args[5].toLowerCase();
                 const new_value = args[6];
                 switch (property){
-                    case 'location':
-                        const possible_locations = ['hand','deck','xp','discard','lost','reserve']; //TODO: These locations, along with values and suits, should be constants defined in one common location.
-                        if (possible_locations.includes(new_value.toLowerCase())){
-                            message.channel.send('The ' + forced_card.name() + ' was forced to the ' + new_value);
-                            forced_card.location = new_value;
-                        } else {
-                            message.channel.send(new_value + ' is not a valid location.');
-                        }
-                        break;
                     case 'praxis':
                         Deck.create_praxis(forced_card,message, c_value, c_suit);
                         break;
+                    case 'location':
+                    case 'suit':
                     case 'value':
-                        const possible_values = ['a','2','3','4','5','6','7','8','9'];
-                        if (possible_values.includes(new_value.toLowerCase())){
-                            message.channel.send('The ' + forced_card.name() + ' was forced to become a ' + new_value);
-                            forced_card.value = new_value;
+                        if (possible_values[property].includes(new_value.toLowerCase())){
+                            message.channel.send('The ' + property + ' of ' + forced_card.name() + ' was forced to ' + new_value + '.');
+                            forced_card[property] = new_value;
                         } else {
-                            message.channel.send(new_value + ' is not a valid value.');
+                            message.channel.send(new_value + ' is not a valid ' + property + '.');
                         }
                         break;
-                    case 'suit':
-                        const possible_suits = ['clubs','spades','diamonds','hearts'];
-                        if (possible_suits.includes(new_value.toLowerCase())){
-                            forced_card.suit = new_value;
-                            message.channel.send('The ' + forced_card.name() + ' was forced to become a ' + new_value);
-                        } else {
-                            message.channel.send(new_value + ' is not a valid suit.');
-                        }
+                    default: 
+                        message.channel.send('The property ' + property + ' of cards does not exist or cannot be forced.');
                         break;
                 }  
                 
