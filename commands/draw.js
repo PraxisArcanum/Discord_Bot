@@ -4,9 +4,9 @@ const Deck = require('../deckHelpers.js');
 module.exports = {
     name: 'draw',
     description: 'Draws a card from a deck',
-    execute(message, args, deck){
+    execute(message, args, deck, draw_n){
         // Make sure there are cards to draw
-        const drawn_cards = Deck.draw_cards(deck, 1);
+        const drawn_cards = Deck.draw_cards(deck, draw_n);
         for(let i=0; i < drawn_cards.length; i++) {
             const card = drawn_cards[i];
             // Set the new location of that card to be in hand
