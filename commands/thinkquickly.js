@@ -4,7 +4,7 @@ const Deck = require('../deckHelpers.js');
 module.exports = {
     name: 'thinkquickly',
     description: 'Draws a card from the deck, plays it to the current check, sends the card to discard',
-    execute(message, args, deck, embed, curr_game){
+    execute(message, deck, curr_game){
 
         // Make sure there are cards to draw
         num_to_draw = 1; // default check is 1
