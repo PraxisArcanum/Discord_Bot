@@ -278,6 +278,28 @@ client.on('message', message=>{
     let args = message.content.substring(PREFIX.length).split(" "); //I assume this mean args are split by spaces
     switch (args[0].toLowerCase()){
         
+        case 'help':
+        case 'commands':
+            embed = new Discord.MessageEmbed()
+            .setTitle('Praxis Arcanum Discord Bot Commands')
+            .setColor(0xF1C40F)
+            .addField('!rules or !demo','Shows you a link to an audio file with a brief overview of the game rules')
+            .addField('!new game','Starts a new game with you as the GM. Only one open game can exist per channel. Creates a default GM deck for you too.')
+            .addField('!close game','Closes an open game, allowing someone else to start a game.')
+            .addField('!add @player','Adds a user to the open game. Anyone can add anyone as a player. Creates a default player deck for them too.')
+            .addField('!save game','Saves your open game. Only one game per GM per channel may be saved.')
+            .addField('!load game','Loads a previously saved game.')
+            .addField('!new session or !new episode','Keeps XP but moves all cards to their starting positions.')
+            .addField('!draw #','Draws a number of cards from your deck into your hand. If # is not specified, draws 1.')
+            .addField('!play #value of #suit','Plays the specified card from your hand.')
+            .addField('!motif #suit','Allows you to perform a motif of the specified #suit')
+            .addField('!reshuffle #value of #suit and #value2 of #suit2', 'Reshuffles your discard while moving two specified cards to lost')
+            .addField('!hand, !xp, !lost, !deck, !discard, or !reserve','Shows you the cards in the respective locations.')
+            .addField('!check','Allows the GM to perform a skill check, flipping up cards and replacing them in the deck.')
+            .addField('!force @player #value of #suit #property #argument','Forces the property of a card in @player deck to be #argument.')
+            .addField('!website or !pdf','Shows you how you can support Praxis Arcanum and pick up the rulebook');
+            break;
+
         case 'gross': //debugging tool, calling requests from the bot as though it was a player.
             message.channel.send('!'+message.content.slice(PREFIX.length+1+args[0].length));
             message.delete();
@@ -389,8 +411,6 @@ client.on('message', message=>{
 
 
                 case 'episode':
-                    args[0] = 'session'; //I'm cheating... not including a break so that it just runs into the next line and executes as through arg[0] was 'session'.
-
                 case 'session':
                     if (message.author.id != mygame.admin){
                         message.channel.send('Only the game admin, <@!' + mygame.admin + '>, can start a new Session.');
@@ -414,7 +434,7 @@ client.on('message', message=>{
                 }
             break;
 
-
+        case 'pdf':
         case 'website':
             embed = new Discord.MessageEmbed()
                 .setTitle('Praxis Arcanum')
@@ -423,6 +443,19 @@ client.on('message', message=>{
                 .setThumbnail('https://img.itch.zone/aW1hZ2UvNTIxMjMyLzI3MzM5MzMucG5n/347x500/YIfjwS.png')
                 .setURL('https://praxisarcanum.itch.io/praxisarcanum')
                 .addField('Praxis Arcanum Roleplaying Game','Your actions define you. Play the character you want. Available for $5.');
+                message.channel.send(embed);
+                message.delete();
+            break;
+        
+        case 'demo':
+        case 'rules':
+            embed = new Discord.MessageEmbed()
+                .setTitle('Praxis Arcanum Rules Summary')
+                .setColor(0xF1C40F)
+                .setImage('https://img.itch.zone/aW1hZ2UvNTIxMjMyLzI3MzM5MTMucG5n/347x500/N5i3yR.png')
+                .setThumbnail('https://img.itch.zone/aW1hZ2UvNTIxMjMyLzI3MzM5MzMucG5n/347x500/YIfjwS.png')
+                .setURL('https://soundcloud.com/user-185271841/praxis-arcanum-rules-summary')
+                .addField('Praxis Arcanum Roleplaying Game','A brief summary of the rules to Praxis Arcanum. For the full set of rules, type !pdf to get the rulebook!');
                 message.channel.send(embed);
                 message.delete();
             break;
@@ -445,7 +478,7 @@ client.on('message', message=>{
             break;
 
         
-        case 'deck': // Shows the player their hand
+        case 'deck': // Shows the player their deck
             embed = new Discord.MessageEmbed()    
             show_cards_in_zone(mygame,message,embed,'deck');
             break;
@@ -463,7 +496,7 @@ client.on('message', message=>{
             break;
 
         
-        case 'xp': // Shows the player their reserve
+        case 'xp': // Shows the player their xp
             embed = new Discord.MessageEmbed()    
             show_cards_in_zone(mygame,message,embed,'xp');
             break;
@@ -472,12 +505,6 @@ client.on('message', message=>{
         case 'lost': // Shows the player their lost cards
             embed = new Discord.MessageEmbed()    
             show_cards_in_zone(mygame,message,embed,'lost');
-            break;
-
-
-        case 'discard': // Shows the player their xp
-            embed = new Discord.MessageEmbed()    
-            show_cards_in_zone(mygame,message,embed,'xp');
             break;
             
 
