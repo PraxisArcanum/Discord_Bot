@@ -1,11 +1,10 @@
 // Stuff to implement later: max hand size
+const Deck = require('../deckHelpers.js');
 
 module.exports = {
     name: 'check',
     description: 'Draws cards from a deck then replaces them',
     execute(message, args, deck, embed, curr_game){
-        let indexpulled = 0; // defining it here so that I can call it by [i] later
-        let all_pulled = [];
 
         // Make sure there are cards to draw
         if (args.length < 2){
@@ -14,29 +13,30 @@ module.exports = {
             num_to_draw = args[1];
         }
 
-        // Get a random card index (0:length) and make sure it's in the deck
-        for (i = 0; i<num_to_draw; i++){
-
-            let cardstodraw = deck.cards.filter(card => card.location == 'deck');
-            if (cardstodraw.length < num_to_draw){
-                message.channel.send('Not enough cards left to do a check, you should reshuffle');
-                return;
-            }
-            indexpulled = Math.floor( Math.random() * (cardstodraw.length)); // the index for cardstodraw
-            card_drawn_index = deck.cards.findIndex(card => card == cardstodraw[indexpulled]); // the index for deck
-            all_pulled.push(card_drawn_index);
-            deck.cards[card_drawn_index].location = 'check';
-            message.channel.send('Pulled the ' + deck.cards[card_drawn_index].value + ' of ' + deck.cards[card_drawn_index].suit);
+        // Randomly select the correct number of cards.
+        let drawn_cards = [];
+        try {
+            drawn_cards = Deck.draw_cards(deck, num_to_draw);
+        } catch (e) {
+            // Show the error message and abort if something goes wrong.
+            message.channel.send(e.message);
+            return;
         }
-
+        
+        // Prepare the embed.
         embed.setTitle('Your '+ deck.role + ' check')
         embed.setColor(0xF1C40F);
         
-        for (let i = 0; i<num_to_draw; i++){
-            embed.addField('GM Card', (deck.cards[all_pulled[i]].value + ' of ' + deck.cards[all_pulled[i]].suit),true)
-            embed.addField('Praxis', (deck.cards[all_pulled[i]].praxis),true)
+        for(let i=0; i < drawn_cards.length; i++) {
+            const card = drawn_cards[i];
+
+            // Send a message about individual card.
+            message.channel.send('Pulled the ' + card.name());
+
+            // Add card to embed to show at end.
+            embed.addField('GM Card', card.name(),true);
+            embed.addField('Praxis', card.praxis,true);
             embed.addField('\u200B','\u200B',true);
-            deck.cards[card_drawn_index].location = 'deck';
         }
 
         message.channel.send(embed);

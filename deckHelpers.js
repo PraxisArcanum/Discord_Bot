@@ -239,7 +239,7 @@ function cards_in_location(deck, location) {
 function draw_cards(deck, number) {
     let drawable = cards_in_location(deck, "deck");
     if (number > drawable.length) {
-        throw new Error("Not enough cards left to draw, you should reshuffle.");
+        throw new Error("Not enough cards to do that, you should reshuffle.");
     }
     let drawn = [];
     for (let i = 0; i < number; i++) {
