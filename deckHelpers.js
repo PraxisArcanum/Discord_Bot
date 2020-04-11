@@ -161,10 +161,11 @@ function card_ids_that_match_prop(
     deck,
     property_type,
     property_name,
-    all_card_ids = []
+    all_card_ids
 ) {
     //if no card ids are specified, it will go through every card in the deck
-    if (all_card_ids.length == 0) {
+    if (all_card_ids === undefined || all_card_ids.length == 0) {
+        all_card_ids = [];
         for (i = 0; i < deck.cards.length; i++) {
             all_card_ids.push(i);
         }
@@ -231,11 +232,11 @@ function is_valid_card(value, suit) {
 }
 
 function cards_in_location(deck, location) {
-    return deck.cards.filter((card) => card.location == origin);
+    return deck.cards.filter((card) => card.location == location);
 }
 
-function draw_cards(deck, number, origin = "deck") {
-    let drawable = cards_in_location(deck, origin);
+function draw_cards(deck, number) {
+    let drawable = cards_in_location(deck, "deck");
     if (number > drawable.length) {
         throw new Error("Not enough cards left to draw, you should reshuffle.");
     }
@@ -255,7 +256,9 @@ module.exports = {
     Praxisgame,
     add_answer,
     card_ids_that_match_prop,
+    cards_in_location,
     create_praxis,
+    draw_cards,
     find_cards_in_location,
     find_deck_id,
     gain_exp,
