@@ -4,7 +4,8 @@ const Deck = require('../deckHelpers.js');
 module.exports = {
     name: 'check',
     description: 'Draws cards from a deck then replaces them',
-    execute(message, args, deck, embed, lastcheck){
+    execute(message, args, deck, embed, curr_game){
+
         // Make sure there are cards to draw
         if (args.length < 2){
             num_to_draw = 3; // default check is 3
@@ -33,12 +34,14 @@ module.exports = {
             message.channel.send('Pulled the ' + card.name());
 
             // Add card to embed to show at end.
-            embed.addField('Card', card.name(),true);
+            embed.addField('GM Card', card.name(),true);
             embed.addField('Praxis', card.praxis,true);
             embed.addField('\u200B','\u200B',true);
         }
 
         message.channel.send(embed);
-        lastcheck = embed;
+        curr_game.lastcheck = embed;
+
+        // These cards all stay in the deck
     }
 }
