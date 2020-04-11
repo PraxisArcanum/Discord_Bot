@@ -99,7 +99,7 @@ client.on('message', message=>{
         mygame = current_game[0];
     }
 
-    let args = message.content.substring(PREFIX.length).split(" "); //I assume this mean args are split by spaces
+    let args = message.content.substring(PREFIX.length).split(/ +/); //I assume this mean args are split by spaces
     switch (args[0].toLowerCase()){
         
         case 'help':
