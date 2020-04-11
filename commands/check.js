@@ -3,7 +3,7 @@
 module.exports = {
     name: 'check',
     description: 'Draws cards from a deck then replaces them',
-    execute(message, args, deck, embed, lastcheck){
+    execute(message, args, deck, embed, curr_game){
         let indexpulled = 0; // defining it here so that I can call it by [i] later
         let all_pulled = [];
 
@@ -33,14 +33,14 @@ module.exports = {
         embed.setColor(0xF1C40F);
         
         for (let i = 0; i<num_to_draw; i++){
-            embed.addField('Card', (deck.cards[all_pulled[i]].value + ' of ' + deck.cards[all_pulled[i]].suit),true)
+            embed.addField('GM Card', (deck.cards[all_pulled[i]].value + ' of ' + deck.cards[all_pulled[i]].suit),true)
             embed.addField('Praxis', (deck.cards[all_pulled[i]].praxis),true)
             embed.addField('\u200B','\u200B',true);
             deck.cards[card_drawn_index].location = 'deck';
         }
 
         message.channel.send(embed);
-        lastcheck = embed;
+        curr_game.lastcheck = embed;
 
         // These cards all stay in the deck
     }

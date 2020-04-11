@@ -133,7 +133,7 @@ client.on('message', message=>{
         case 'check':
             deckid = Deck.find_deck_id(mygame, message.author.id);
             embed = new Discord.MessageEmbed();
-            client.commands.get('check').execute(message,args,mygame.decks[deckid],embed,mygame.lastcheck);
+            client.commands.get('check').execute(message,args,mygame.decks[deckid],embed,mygame);
             break;
 
 
@@ -631,6 +631,10 @@ client.on('message', message=>{
                 message.channel.send('This command only works in Session Zero.');
                 return;
             }
+
+        case 'summary':
+            message.channel.send(mygame.lastcheck);
+            return;
 
 
 
