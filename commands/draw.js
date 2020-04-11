@@ -17,6 +17,7 @@ module.exports = {
         // Get a random card index (0:length) and make sure it's in the deck
         let indexpulled = Math.floor( Math.random() * (deck.cards.length));
         while (deck.cards[indexpulled].location != 'deck'){
+            // TODO: This can be made more efficient.
             indexpulled = Math.floor( Math.random() * (deck.cards.length));
         }
         console.log('Drew card number ' + indexpulled);

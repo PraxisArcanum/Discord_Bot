@@ -1,5 +1,10 @@
+/**
+ * @prettier
+ */
+
 const Discord = require("discord.js");
 
+// Define essential classes: Cards, Decks, Game
 class card {
     constructor(suit, number, praxis, location, user) {
         this.suit = suit;
@@ -15,6 +20,7 @@ class deck {
     constructor(user, role) {
         this.user = user;
         this.role = role;
+        this.setup_complete = false;
         this.cards = [
             new card("Clubs", "A", "blank", "deck", user),
             new card("Hearts", "A", "blank", "deck", user),
@@ -70,11 +76,12 @@ class deck {
 }
 
 class Praxisgame {
-    constructor(admin) {
-        this.ID = "0001";
+    constructor(admin, messageID, chID) {
+        this.ID = messageID;
         this.admin = admin;
         this.session = -1;
         this.decks = [new deck(admin, "GM")];
+        this.channelID = chID;
     }
 }
 
@@ -101,10 +108,30 @@ function find_cards_in_location(deck, loc) {
     return cardids; //returns [] if there are no matches
 }
 
-function create_praxis(deck, cardid, message){
-    let praxis_msg = message.content.substring(message.content.search("praxis")+7, message.content.length);
-    deck.cards[cardid].praxis = praxis_msg;
-    message.channel.send('Added \"'+praxis_msg+'\" as the Praxis for the '+c_value+' of '+c_suit);
+function create_praxis(card, message, c_value, c_suit) {
+    let praxis_msg = message.content.substring(
+        message.content.search("praxis") + 7,
+        message.content.length
+    );
+    card.praxis = praxis_msg;
+    message.channel.send(
+        'Added "' +
+            praxis_msg +
+            '" as the Praxis for the ' +
+            c_value +
+            " of " +
+            c_suit
+    );
+    return;
+}
+
+function add_answer(card, message, c_value, c_suit) {
+    let answer_msg = message.content.substring(
+        message.content.search("answer") + 7,
+        message.content.length
+    );
+    card.praxis = answer_msg;
+    message.channel.send('Added "' + answer_msg + '" as the answer');
     return;
 }
 
@@ -127,32 +154,37 @@ function gain_exp(deck, suit) {
 }
 
 // Cut down a list of card indeces to those that match a property.
-function card_ids_that_match_prop(allcardids,deck,property_type,property_name){
+function card_ids_that_match_prop(
+    allcardids,
+    deck,
+    property_type,
+    property_name
+) {
     const matching_indeces = [];
 
     //if no card ids are specified, it will go through every card in the deck
-    if (allcardids == ''){
-        for (i=0; i<deck.cards.length; i++){
+    if (allcardids == "") {
+        for (i = 0; i < deck.cards.length; i++) {
             allcardids.push(i);
         }
     }
 
     // compare, based on which property was selected
-    switch (property_type.toLowerCase){
-        case 'suit':
-            for (i=1; i<allcardids.length; i++){
+    switch (property_type.toLowerCase) {
+        case "suit":
+            for (i = 1; i < allcardids.length; i++) {
                 if (deck.cards[i].suit == property_name)
                     matching_indeces.push(i);
             }
             return matching_indeces;
-        case 'value':
-            for (i=1; i<allcardids.length; i++){
+        case "value":
+            for (i = 1; i < allcardids.length; i++) {
                 if (deck.cards[i].value == property_name)
                     matching_indeces.push(i);
             }
             return matching_indeces;
-        case 'owner':
-            for (i=1; i<allcardids.length; i++){
+        case "owner":
+            for (i = 1; i < allcardids.length; i++) {
                 if (deck.cards[i].owner == property_name)
                     matching_indeces.push(i);
             }
@@ -200,18 +232,25 @@ function show_cards_in_zone(game, message, embed, zone) {
     return;
 }
 
-function is_valid_card(value, suit){
-    all_values = ['a','2','3','4','5','6','7','8','9'];
-    all_suits = ['spades','diamonds','clubs','hearts'];
-    return (all_values.includes(value.toLowerCase) && all_suits.includes(suit.toLowerCase)); 
+function is_valid_card(value, suit) {
+    all_values = ["a", "2", "3", "4", "5", "6", "7", "8", "9"];
+    all_suits = ["spades", "diamonds", "clubs", "hearts"];
+    return (
+        all_values.includes(value.toLowerCase()) &&
+        all_suits.includes(suit.toLowerCase())
+    );
 }
 
 module.exports = {
     card,
     deck,
     Praxisgame,
+    add_answer,
+    card_ids_that_match_prop,
+    create_praxis,
     find_cards_in_location,
-    gain_exp,
-    show_cards_in_zone,
     find_deck_id,
+    gain_exp,
+    is_valid_card,
+    show_cards_in_zone,
 };
