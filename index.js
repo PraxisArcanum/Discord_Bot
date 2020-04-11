@@ -134,6 +134,14 @@ client.on('message', message=>{
             client.commands.get('check').execute(message,args,mygame.decks[deckid],embed,mygame);
             break;
 
+        case 'think':
+            if (args[1] == 'quickly'){
+                deckid = Deck.find_deck_id(mygame, message.author.id);
+                client.commands.get('thinkquickly').execute(message,mygame.decks[deckid],mygame);
+                break;
+            } else {
+                message.channel.send('Did you mean !think quickly?');
+            }
 
         case 'add':
             if (args.length<2){
@@ -358,8 +366,11 @@ client.on('message', message=>{
             } else {
                 cardsinhand = Deck.find_cards_in_location(mygame.decks[deckid], 'hand');
             }
-            foundcards = mygame.decks[deckid].cards.filter(card => card.value.toLowerCase() == c_value.toLowerCase() && card.suit.toLowerCase() == c_suit.toLowerCase() 
-            && card.location.toLowerCase() == 'hand'); // this should only return one card
+            foundcards = mygame.decks[deckid].cards.filter(card => (card.value.toLowerCase() == c_value.toLowerCase() && card.suit.toLowerCase() == c_suit.toLowerCase() 
+            && card.location.toLowerCase() == 'hand')); // this should only return one card
+
+            console.log(foundcards);
+            //return;
 
             if (foundcards.length != 1){
                 message.channel.send('The card you requested wasn\'t in hand.');
