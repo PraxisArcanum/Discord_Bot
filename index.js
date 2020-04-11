@@ -566,6 +566,8 @@ client.on('message', message=>{
                     location: ['hand','deck','xp','discard','lost','reserve'],
                     value: ['a','2','3','4','5','6','7','8','9'],
                     suit: ['clubs','spades','diamonds','hearts'],
+                    xp: [0,1,2,3,4,5,6,7,8,9],
+                    max_xp: [0,1,2,3,4,5,6,7,8,9],
                 };
                 const property = args[5].toLowerCase();
                 const new_value = args[6];
@@ -576,6 +578,8 @@ client.on('message', message=>{
                     case 'location':
                     case 'suit':
                     case 'value':
+                    case 'xp':
+                    case 'max_xp':
                         if (possible_values[property].includes(new_value.toLowerCase())){
                             message.channel.send('The ' + property + ' of ' + forced_card.name() + ' was forced to ' + new_value + '.');
                             forced_card[property] = new_value;
