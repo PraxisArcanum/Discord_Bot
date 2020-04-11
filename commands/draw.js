@@ -6,7 +6,13 @@ module.exports = {
     description: 'Draws a card from a deck',
     execute(message, args, deck, draw_n){
         // Make sure there are cards to draw
-        const drawn_cards = Deck.draw_cards(deck, draw_n);
+        let drawn_cards = [];
+        try {
+            drawn_cards = Deck.draw_cards(deck, draw_n);
+        } catch (e) {
+            message.channel.send(e.message);
+            return;
+        }
         for(let i=0; i < drawn_cards.length; i++) {
             const card = drawn_cards[i];
             // Set the new location of that card to be in hand
