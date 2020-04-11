@@ -174,10 +174,7 @@ client.on('message', message=>{
                 draw_n = 1;
             }
 
-            for (i = 0; i < draw_n; i++){
-                client.commands.get('draw').execute(message,args,mygame.decks[deckid]);
-                console.log('drew a card');
-            }
+            client.commands.get('draw').execute(message,args,mygame.decks[deckid], draw_n);
             break;
 
 

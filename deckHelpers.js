@@ -14,6 +14,9 @@ class card {
         this.xp = 0;
         this.owner = user;
     }
+    name() {
+        return this.value + " of " + this.suit;
+    }
 }
 
 class deck {
@@ -156,22 +159,23 @@ function gain_exp(deck, suit) {
 
 // Cut down a list of card indeces to those that match a property.
 function card_ids_that_match_prop(
-    allcardids,
     deck,
     property_type,
-    property_name
+    property_name,
+    all_card_ids
 ) {
     //if no card ids are specified, it will go through every card in the deck
-    if (allcardids.length == 0) {
+    if (all_card_ids === undefined || all_card_ids.length == 0) {
+        all_card_ids = [];
         for (i = 0; i < deck.cards.length; i++) {
-            allcardids.push(i);
+            all_card_ids.push(i);
         }
     }
 
     // compare, based on which property was selected
     const matching_indeces = [];
     const prop = property_type.toLowerCase();
-    for (i = 1; i < allcardids.length; i++) {
+    for (i = 1; i < all_card_ids.length; i++) {
         if (deck.cards[i][prop] == property_name) {
             matching_indeces.push(i);
         }
@@ -228,13 +232,34 @@ function is_valid_card(value, suit) {
     );
 }
 
+function cards_in_location(deck, location) {
+    return deck.cards.filter((card) => card.location == location);
+}
+
+function draw_cards(deck, number) {
+    let drawable = cards_in_location(deck, "deck");
+    if (number > drawable.length) {
+        throw new Error("Not enough cards left to draw, you should reshuffle.");
+    }
+    let drawn = [];
+    for (let i = 0; i < number; i++) {
+        let index = Math.floor(Math.random() * drawable.length);
+        const removed_cards = drawable.splice(index, 1);
+        const card = removed_cards[0];
+        drawn.push(card);
+    }
+    return drawn;
+}
+
 module.exports = {
     card,
     deck,
     Praxisgame,
     add_answer,
     card_ids_that_match_prop,
+    cards_in_location,
     create_praxis,
+    draw_cards,
     find_cards_in_location,
     find_deck_id,
     gain_exp,
