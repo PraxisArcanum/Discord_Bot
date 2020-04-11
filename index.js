@@ -337,9 +337,9 @@ client.on('message', message=>{
         case 'play':
             // confirm we have the card
             // instead of this being fixed in place, we could have it look for "of", and choose args[n-1], args[n+1]? Might be weird. Maybe only if the fixed attempt doesn't work?
-            let do_resist = message.content.indexOf('-resist');
-            let do_help = message.content.indexOf('-help');
-            let do_praxis = message.content.indexOf('-praxis');
+            let do_resist = args.includes('-resist');
+            let do_help = args.includes('-help');
+            let do_praxis = args.includes('-praxis'); //still not implemented
 
             if (args.length<4){
                 message.channel.send('Please specify the card by number and suit (i.e. !play A of Spades)');
@@ -370,18 +370,19 @@ client.on('message', message=>{
 
             // Determine location
             if (mygame.decks[deckid].role == 'GM'){
-                if (do_resist != -1 || do_help != -1) {
+                if (do_resist || do_help) {
                     message.channel.send('GMs shouldn\'t be resisting or helping. Silly GM. Those moves are for players!');
                 }
                 destination = 'deck';
                 autodraw = false;
             } else if (mygame.decks[deckid].role == 'Player'){
-                if (do_resist != -1){
+                if (do_resist){
                     desination = 'hand';
                     autodraw = false;
+                } else {
+                    destination = 'discard';
+                    autodraw = true;
                 }
-                destination = 'discard';
-                autodraw = true;
             }
             foundcards[0].location = destination;
             message.channel.send('Played the '+c_value+' of '+c_suit);
@@ -389,10 +390,9 @@ client.on('message', message=>{
             if (args.includes('praxis')){
                 Deck.create_praxis(foundcards[0],message, c_value, c_suit);
             }
-            console.log(do_help);
 
             let this_made_me_draw_a_card = false;
-            if (do_help != -1){
+            if (!do_help){
                 this_made_me_draw_a_card = Deck.gain_exp(mygame.decks[deckid],c_suit);
             } else {
                 this_made_me_draw_a_card = false;
@@ -401,18 +401,24 @@ client.on('message', message=>{
             if (this_made_me_draw_a_card){
                 message.channel.send('You earned enough experience to gain the next card in '+c_suit);
             } else if (autodraw) {
-                client.commands.get('draw').execute(message,args,mygame.decks[deckid]);
+                client.commands.get('draw').execute(message,args,mygame.decks[deckid],1);
                 console.log('drew a card');
             }
 
-            if (do_help != -1){
-                mygame.lastcheck = new Discord.MessageEmbed()
+            if (do_help){
+                mygame.lastcheck
                 .addField(message.author.username + '\'s Help Card',foundcards[0].name(),true)
                 .addField('Praxis',foundcards[0].praxis,true)
                 .addField('\u200B','\u200B',true);
 
-                message.channel.send(curr_game.lastcheck);
-            }
+                message.channel.send(mygame.lastcheck);
+            } else {
+                mygame.lastcheck = new Discord.MessageEmbed()
+                .addField(message.author.username + '\'s Played Card',foundcards[0].name(),true)
+                .addField('Praxis',foundcards[0].praxis,true)
+                .addField('\u200B','\u200B',true);
+
+                message.channel.send(mygame.lastcheck);}
             break;
 
 
@@ -552,39 +558,35 @@ client.on('message', message=>{
                     message.channel.send('Card format was invalid. Please format as !force @player value of suit property input.');
                     return;
                 }
-                const forced_card = mygame.decks[deckid].cards.find(card => {
-                    return  card.value.toLowerCase() == c_value.toLowerCase() 
-                        && card.suit.toLowerCase() == c_suit.toLowerCase() 
-                        && card.owner == playerid
-                }); // may return one card or undefined
-                if (forced_card === undefined){
-                    message.channel.send('This card should be valid, but was not found.');
-                    return;
+                forcedcard = mygame.decks[deckid].cards.filter(card => card.value == c_value && card.suit == c_suit && card.owner == playerid); // should only return one card
+                if (forcedcard.length != 1){
+                    message.channel.send('This card was an invalid part of the deck. Either too many or too few of them exist. This is a weird bug.');
                 }
                 
-                const possible_values = {
-                    location: ['hand','deck','xp','discard','lost','reserve'],
-                    value: ['a','2','3','4','5','6','7','8','9'],
-                    suit: ['clubs','spades','diamonds','hearts'],
-                };
-                const property = args[5].toLowerCase();
-                const new_value = args[6];
-                switch (property){
-                    case 'praxis':
-                        Deck.create_praxis(forced_card,message, c_value, c_suit);
-                        break;
+                switch (args[5].toLowerCase()){
                     case 'location':
-                    case 'suit':
-                    case 'value':
-                        if (possible_values[property].includes(new_value.toLowerCase())){
-                            message.channel.send('The ' + property + ' of ' + forced_card.name() + ' was forced to ' + new_value + '.');
-                            forced_card[property] = new_value;
-                        } else {
-                            message.channel.send(new_value + ' is not a valid ' + property + '.');
+                        const possible_locations = ['hand','deck','xp','discard','lost','reserve']; //TODO: These locations, along with values and suits, should be constants defined in one common location.
+                        if (possible_locations.includes(args[6].toLowerCase())){
+                            forcedcard[0].location = args[6];
                         }
+                        message.channel.send('The ' + c_value + ' of ' + c_suit + 'was forced to the ' + args[6]);
                         break;
-                    default: 
-                        message.channel.send('The property ' + property + ' of cards does not exist or cannot be forced.');
+                    case 'praxis':
+                        Deck.create_praxis(forcedcard[0],message, c_value, c_suit);
+                        break;
+                    case 'value':
+                        const possible_values = ['a','2','3','4','5','6','7','8','9'];
+                        if (possible_values.includes(args[6].toLowerCase())){
+                            forcedcard[0].value = args[6];
+                        }
+                        message.channel.send('The ' + c_value + ' of ' + c_suit + 'was forced to become a ' + args[6]);
+                        break;
+                    case 'suit':
+                        const possible_suits = ['clubs','spades','diamonds','hearts'];
+                        if (possible_suits.includes(args[6].toLowerCase())){
+                            forcedcard[0].suit = args[6];
+                        }
+                        message.channel.send('The ' + c_value + ' of ' + c_suit + 'was forced to become a ' + args[6]);
                         break;
                 }  
                 
