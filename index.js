@@ -120,6 +120,7 @@ client.on('message', message=>{
             .addField('!check','Allows the GM to perform a skill check, flipping up cards and replacing them in the deck.')
             .addField('!force @player #value of #suit #property #argument','Forces the property of a card in @player deck to be #argument.')
             .addField('!website or !pdf','Shows you how you can support Praxis Arcanum and pick up the rulebook');
+            message.channel.send(embed);
             break;
 
         case 'gross': //debugging tool, calling requests from the bot as though it was a player.
