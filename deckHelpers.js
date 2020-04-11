@@ -160,36 +160,22 @@ function card_ids_that_match_prop(
     property_type,
     property_name
 ) {
-    const matching_indeces = [];
-
     //if no card ids are specified, it will go through every card in the deck
-    if (allcardids == "") {
+    if (allcardids.length == 0) {
         for (i = 0; i < deck.cards.length; i++) {
             allcardids.push(i);
         }
     }
 
     // compare, based on which property was selected
-    switch (property_type.toLowerCase) {
-        case "suit":
-            for (i = 1; i < allcardids.length; i++) {
-                if (deck.cards[i].suit == property_name)
-                    matching_indeces.push(i);
-            }
-            return matching_indeces;
-        case "value":
-            for (i = 1; i < allcardids.length; i++) {
-                if (deck.cards[i].value == property_name)
-                    matching_indeces.push(i);
-            }
-            return matching_indeces;
-        case "owner":
-            for (i = 1; i < allcardids.length; i++) {
-                if (deck.cards[i].owner == property_name)
-                    matching_indeces.push(i);
-            }
-            return matching_indeces;
+    const matching_indeces = [];
+    const prop = property_type.toLowerCase();
+    for (i = 1; i < allcardids.length; i++) {
+        if (deck.cards[i][prop] == property_name) {
+            matching_indeces.push(i);
+        }
     }
+    return matching_indeces;
 }
 
 // Show all the cards in a particular zone in an embed
