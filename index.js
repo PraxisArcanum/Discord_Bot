@@ -156,9 +156,9 @@ function find_cards_in_location(deck, loc){
     return cardids; //returns [] if there are no matches
 }
 
-function create_praxis(deck, cardid, message){
+function create_praxis(card, message){
     let praxis_msg = message.content.substring(message.content.search("praxis")+7, message.content.length);
-    deck.cards[cardid].praxis = praxis_msg;
+    card.praxis = praxis_msg;
     message.channel.send('Added \"'+praxis_msg+'\" as the Praxis for the '+c_value+' of '+c_suit);
     return;
 }
@@ -249,7 +249,7 @@ function show_cards_in_zone(game,message,embed,zone){
 function is_valid_card(value, suit){
     all_values = ['a','2','3','4','5','6','7','8','9'];
     all_suits = ['spades','diamonds','clubs','hearts'];
-    return (all_values.includes(value.toLowerCase) && all_suits.includes(suit.toLowerCase)); 
+    return (all_values.includes(value.toLowerCase()) && all_suits.includes(suit.toLowerCase())); 
 }
 
 // Passive functions, when the bot starts up
@@ -522,7 +522,7 @@ client.on('message', message=>{
             message.channel.send('Played the '+c_value+' of '+c_suit);
 
             if (args.includes('praxis')){
-                create_praxis(mygame.decks[deckid],found_card_id,args);
+                create_praxis(mygame.decks[deckid].cards[found_card_id],message);
             }
 
             let this_made_me_draw_a_card = gain_exp(mygame.decks[deckid],c_suit);
@@ -651,14 +651,58 @@ client.on('message', message=>{
 
 
         case 'force':
+            if (args.length < 7){
+                message.channel.send('Forces properties of a card. Format as !force @player value of suit property input');
+                return;
+            }
             if (mygame.admin == message.author.id){
-                for (i=0; i<mygame.decks.length; i++){
-                    if (args[1] == mygame.decks[i].user){
-                        value == args [2];
-                        // come back to this after "check card" function
-
-                    }
+                playerid = args[1].substring(3,args[1].length-1);
+                if (playerid.length != 18){
+                    message.channel.send('Could not force cards for <@!'+playerid+'> as their id was invalid');
+                    return; // not an actual user id
                 }
+                deckid = find_deck_id(mygame, playerid);
+                if (deckid == -1){
+                    message.channel.send('Could not find a deck for that user.');
+                }
+                
+                c_value = args[2];
+                c_suit = args[4];
+                if (!is_valid_card(c_value, c_suit)){
+                    message.channel.send('Card format was invalid. Please format as !force @player value of suit property input.');
+                    return;
+                }
+                forcedcard = mygame.decks[deckid].cards.filter(card => card.value == c_value && card.suit == c_suit && card.owner == playerid); // should only return one card
+                if (forcedcard.length != 1){
+                    message.channel.send('This card was an invalid part of the deck. Either too many or too few of them exist. This is a weird bug.');
+                }
+                
+                switch (args[5].toLowerCase()){
+                    case 'location':
+                        const possible_locations = ['hand','deck','xp','discard','lost','reserve'];
+                        if (possible_locations.includes(args[6].toLowerCase())){
+                            forcedcard[0].location = args[6];
+                        }
+                        message.channel.send('The ' + c_value + ' of ' + c_suit + 'was forced to the ' + args[6]);
+                        break;
+                    case 'praxis':
+                        create_praxis(forcedcard[0],message);
+                        break;
+                    case 'value':
+                        const possible_values = ['a','2','3','4','5','6','7','8','9'];
+                        if (possible_values.includes(args[6].toLowerCase())){
+                            forcedcard[0].value = args[6];
+                        }
+                        message.channel.send('The ' + c_value + ' of ' + c_suit + 'was forced to become a ' + args[6]);
+                        break;
+                    case 'suit':
+                        const possible_suits = ['clubs','spades','diamonds','hearts'];
+                        if (possible_suits.includes(args[6].toLowerCase())){
+                            forcedcard[0].suit = args[6];
+                        }
+                        message.channel.send('The ' + c_value + ' of ' + c_suit + 'was forced to become a ' + args[6]);
+                        break;
+                }  
                 
             }
             break;
