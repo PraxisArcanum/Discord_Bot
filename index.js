@@ -19,8 +19,6 @@
 
 // Force
 // typo in reshuffle
-// add cards to GM deck
-// draw same card in check
 
 
 // Requires and setup
@@ -478,21 +476,30 @@ client.on('message', message=>{
             if (args.length < 9){
                 message.channel.send('Please format your request to reshuffle like this: !reshuffle lose <value> of <suit> and <value> of <suit>');
             } else {
-                l_val_1 = args[2];
-                l_sui_1 = args[4];
-                l_val_2 = args[6];
-                l_sui_2 = args[8];
-                deckid = Deck.find_deck_id(mygame,message.author.id);
-                cardids = Deck.find_cards_in_location(mygame.decks[deckid],'discard');
-
-                for (i = 0; i<cardids.length; i++){
-                    if ( (mygame.decks[deckid].cards[cardids[i]].value==l_val_1)&&(mygame.decks[deckid].cards[cardids[i]].suit==l_sui_1) || 
-                    (mygame.decks[deckid].cards[cardids[i]].value==l_val_2)&&(mygame.decks[deckid].cards[cardids[i]].suit==l_sui_2) ){
-                        mygame.decks[deckid].cards[cardids[i]].location = 'lost';
-                    } else {
-                        mygame.decks[deckid].cards[cardids[i]].location = 'deck';
-                    }
+                l_val_1 = args[2].toLowerCase();
+                l_sui_1 = args[4].toLowerCase();
+                l_val_2 = args[6].toLowerCase();
+                l_sui_2 = args[8].toLowerCase();
+                if (Deck.is_valid_card(l_val_1,l_sui_1) && Deck.is_valid_card(l_val_2,l_sui_2)){
+                    deckid = Deck.find_deck_id(mygame,message.author.id);
+                    cardids = Deck.find_cards_in_location(mygame.decks[deckid],'discard');
+                } else {
+                    message.channel.send('Card formats were not both valid. Please check your message for typos');
+                    return;
                 }
+
+                cards_in_discard = mygame.decks[deckid].cards.filter(card => card.location == 'discard');
+                console.log(cards_in_discard);
+                for (c_el of cards_in_discard){
+                    if ((c_el.value.toLowerCase() == l_val_1 && c_el.suit.toLowerCase() == l_sui_1) ||
+                     (c_el.value.toLowerCase() == l_val_2 && c_el.suit.toLowerCase() == l_sui_2)){
+                        c_el.location = 'lost';
+                    } else {
+                        c_el.location = 'deck';
+                    }   
+                }
+                message.channel.send('Sent two cards from discard to loss and reshuffled the rest back in to your deck');
+
             }
             break;
 
