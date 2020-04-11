@@ -14,6 +14,9 @@ class card {
         this.xp = 0;
         this.owner = user;
     }
+    name() {
+        return this.value + " of " + this.suit;
+    }
 }
 
 class deck {
@@ -225,6 +228,25 @@ function is_valid_card(value, suit) {
         all_values.includes(value.toLowerCase()) &&
         all_suits.includes(suit.toLowerCase())
     );
+}
+
+function cards_in_location(deck, location) {
+    return deck.cards.filter((card) => card.location == origin);
+}
+
+function draw_cards(deck, number, origin = "deck") {
+    let drawable = cards_in_location(deck, origin);
+    if (number > drawable.length) {
+        throw new Error("Not enough cards left to draw, you should reshuffle.");
+    }
+    let drawn = [];
+    for (let i = 0; i < number; i++) {
+        let index = Math.floor(Math.random() * drawable.length);
+        const removed_cards = drawable.splice(index, 1);
+        const card = removed_cards[0];
+        drawn.push(card);
+    }
+    return drawn;
 }
 
 module.exports = {
