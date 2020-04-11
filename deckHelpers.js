@@ -148,6 +148,7 @@ function gain_exp(deck, suit) {
     const card = xp_cards.find(
         (card) => card.suit.toLowerCase() == suit.toLowerCase()
     );
+    console.log((card ? card.name() : undefined) + " gained xp");
     if (card === undefined) {
         // This will always happen for GMs, who don't gain xp.
         // It may also happen if no cards left in reserve or xp of this suit.
@@ -263,8 +264,10 @@ function next_card_in_suit(deck, suit, value) {
         const next_number = Number(value) + 1;
         next_value = String(next_number);
     }
-    return deck.cards.first(
-        (card) => card.suit == suit && card.value == next_value
+    return deck.cards.find(
+        (card) =>
+            card.suit.toLowerCase() == suit.toLowerCase() &&
+            card.value.toLowerCase() == next_value.toLowerCase()
     );
 }
 
