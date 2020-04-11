@@ -34,13 +34,12 @@ module.exports = {
             message.channel.send('Pulled the ' + card.name());
 
             // Add card to embed to show at end.
-            embed.addField('GM Card', card.name(),true);
-            embed.addField('Praxis', card.praxis,true);
-            embed.addField('\u200B','\u200B',true);
+            curr_game.lastcheck.addField('GM Card', card.name(),true);
+            curr_game.lastcheck.addField('Praxis', card.praxis,true);
+            curr_game.lastcheck.addField('\u200B','\u200B',true);
         }
 
-        message.channel.send(embed);
-        curr_game.lastcheck = embed;
+        message.channel.send(curr_game.lastcheck);
 
         // These cards all stay in the deck
     }
