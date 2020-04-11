@@ -133,7 +133,7 @@ client.on('message', message=>{
         case 'check':
             deckid = Deck.find_deck_id(mygame, message.author.id);
             embed = new Discord.MessageEmbed();
-            client.commands.get('check').execute(message,args,mygame.decks[deckid],embed);
+            client.commands.get('check').execute(message,args,mygame.decks[deckid],embed,mygame.lastcheck);
             break;
 
 

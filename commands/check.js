@@ -3,7 +3,7 @@
 module.exports = {
     name: 'check',
     description: 'Draws cards from a deck then replaces them',
-    execute(message, args, deck, embed){
+    execute(message, args, deck, embed, lastcheck){
         let indexpulled = 0; // defining it here so that I can call it by [i] later
         let all_pulled = [];
 
@@ -22,9 +22,8 @@ module.exports = {
                 message.channel.send('Not enough cards left to do a check, you should reshuffle');
                 return;
             }
-            indexpulled = Math.floor( Math.random() * (cardstodraw)); // the index for cardstodraw
+            indexpulled = Math.floor( Math.random() * (cardstodraw.length)); // the index for cardstodraw
             card_drawn_index = deck.cards.findIndex(card => card == cardstodraw[indexpulled]); // the index for deck
-
             all_pulled.push(card_drawn_index);
             deck.cards[card_drawn_index].location = 'check';
             message.channel.send('Pulled the ' + deck.cards[card_drawn_index].value + ' of ' + deck.cards[card_drawn_index].suit);
@@ -41,6 +40,7 @@ module.exports = {
         }
 
         message.channel.send(embed);
+        lastcheck = embed;
 
         // These cards all stay in the deck
     }
