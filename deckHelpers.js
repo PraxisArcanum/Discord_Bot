@@ -6,12 +6,13 @@ const Discord = require("discord.js");
 
 // Define essential classes: Cards, Decks, Game
 class card {
-    constructor(suit, number, praxis, location, user) {
+    constructor(suit, number, max_xp, praxis, location, user) {
         this.suit = suit;
         this.value = number;
         this.praxis = praxis;
         this.location = location;
         this.xp = 0;
+        this.max_xp = max_xp;
         this.owner = user;
     }
     name() {
@@ -25,44 +26,44 @@ class deck {
         this.role = role;
         this.setup_complete = false;
         this.cards = [
-            new card("Clubs", "A", "blank", "deck", user),
-            new card("Hearts", "A", "blank", "deck", user),
-            new card("Diamonds", "A", "blank", "deck", user),
-            new card("Spades", "A", "blank", "deck", user),
-            new card("Clubs", "2", "blank", "deck", user),
-            new card("Hearts", "2", "blank", "deck", user),
-            new card("Diamonds", "2", "blank", "deck", user),
-            new card("Spades", "2", "blank", "deck", user),
-            new card("Clubs", "3", "blank", "deck", user),
-            new card("Hearts", "3", "blank", "deck", user),
-            new card("Diamonds", "3", "blank", "deck", user),
-            new card("Spades", "3", "blank", "deck", user),
+            new card("Clubs", "A", 1, "blank", "deck", user),
+            new card("Hearts", "A", 1, "blank", "deck", user),
+            new card("Diamonds", "A", 1, "blank", "deck", user),
+            new card("Spades", "A", 1, "blank", "deck", user),
+            new card("Clubs", "2", 2, "blank", "deck", user),
+            new card("Hearts", "2", 2, "blank", "deck", user),
+            new card("Diamonds", "2", 2, "blank", "deck", user),
+            new card("Spades", "2", 2, "blank", "deck", user),
+            new card("Clubs", "3", 3, "blank", "deck", user),
+            new card("Hearts", "3", 3, "blank", "deck", user),
+            new card("Diamonds", "3", 3, "blank", "deck", user),
+            new card("Spades", "3", 3, "blank", "deck", user),
 
-            new card("Clubs", "4", "blank", "deck", user),
-            new card("Hearts", "4", "blank", "deck", user),
-            new card("Diamonds", "4", "blank", "deck", user),
-            new card("Spades", "4", "blank", "deck", user),
-            new card("Clubs", "5", "blank", "deck", user),
-            new card("Hearts", "5", "blank", "deck", user),
-            new card("Diamonds", "5", "blank", "deck", user),
-            new card("Spades", "5", "blank", "deck", user),
-            new card("Clubs", "6", "blank", "reserve", user),
-            new card("Hearts", "6", "blank", "reserve", user),
-            new card("Diamonds", "6", "blank", "reserve", user),
-            new card("Spades", "6", "blank", "reserve", user),
+            new card("Clubs", "4", 4, "blank", "deck", user),
+            new card("Hearts", "4", 4, "blank", "deck", user),
+            new card("Diamonds", "4", 4, "blank", "deck", user),
+            new card("Spades", "4", 4, "blank", "deck", user),
+            new card("Clubs", "5", 5, "blank", "deck", user),
+            new card("Hearts", "5", 5, "blank", "deck", user),
+            new card("Diamonds", "5", 5, "blank", "deck", user),
+            new card("Spades", "5", 5, "blank", "deck", user),
+            new card("Clubs", "6", 6, "blank", "reserve", user),
+            new card("Hearts", "6", 6, "blank", "reserve", user),
+            new card("Diamonds", "6", 6, "blank", "reserve", user),
+            new card("Spades", "6", 6, "blank", "reserve", user),
 
-            new card("Clubs", "7", "blank", "reserve", user),
-            new card("Hearts", "7", "blank", "reserve", user),
-            new card("Diamonds", "7", "blank", "reserve", user),
-            new card("Spades", "7", "blank", "reserve", user),
-            new card("Clubs", "8", "blank", "reserve", user),
-            new card("Hearts", "8", "blank", "reserve", user),
-            new card("Diamonds", "8", "blank", "reserve", user),
-            new card("Spades", "8", "blank", "reserve", user),
-            new card("Clubs", "9", "blank", "reserve", user),
-            new card("Hearts", "9", "blank", "reserve", user),
-            new card("Diamonds", "9", "blank", "reserve", user),
-            new card("Spades", "9", "blank", "reserve", user),
+            new card("Clubs", "7", 7, "blank", "reserve", user),
+            new card("Hearts", "7", 7, "blank", "reserve", user),
+            new card("Diamonds", "7", 7, "blank", "reserve", user),
+            new card("Spades", "7", 7, "blank", "reserve", user),
+            new card("Clubs", "8", 8, "blank", "reserve", user),
+            new card("Hearts", "8", 8, "blank", "reserve", user),
+            new card("Diamonds", "8", 8, "blank", "reserve", user),
+            new card("Spades", "8", 8, "blank", "reserve", user),
+            new card("Clubs", "9", 9, "blank", "reserve", user),
+            new card("Hearts", "9", 9, "blank", "reserve", user),
+            new card("Diamonds", "9", 9, "blank", "reserve", user),
+            new card("Spades", "9", 9, "blank", "reserve", user),
         ];
         if (role == "Player") {
             this.cards[12].location = "xp";
@@ -139,22 +140,33 @@ function add_answer(card, message, c_value, c_suit) {
     return;
 }
 
-// Increment XP in cards that are soon to be added to the player deck
+// Increment XP in cards that are soon to be added to the player deck.
+// If a card hits max xp, move it to hand and return true to indicate a drawn card.
+// ELse, returns false.
 function gain_exp(deck, suit) {
-    let cardids = find_cards_in_location(deck, "xp");
-    for (i = 0; i < cardids.length; i++) {
-        if (deck.cards[cardids[i]].suit == suit) {
-            let theactualid = cardids[i];
-            deck.cards[theactualid].xp += 1;
-            if (deck.cards[theactualid].xp == deck.cards[theactualid].value) {
-                deck.cards[theactualid].location = "hand"; // move card to hand
-                deck.cards[theactualid + 4].location = "xp"; // move next card to xp
-                return (carddrawn = true);
-            } else {
-                return (carddrawn = false); //GMs have no cards in 'xp' so this function should always return false
-            }
-        }
+    const xp_cards = cards_in_location(deck, "xp");
+    const card = xp_cards.find(
+        (card) => card.suit.toLowerCase() == suit.toLowerCase()
+    );
+    console.log((card ? card.name() : undefined) + " gained xp");
+    if (card === undefined) {
+        // This will always happen for GMs, who don't gain xp.
+        // It may also happen if no cards left in reserve or xp of this suit.
+        return false;
     }
+    card.xp = card.xp + 1;
+    if (card.xp >= card.max_xp) {
+        // A card has gained enough xp to be added to the deck! Move it directly to hand.
+        card.location = "hand";
+        // Find next card to add to xp pile. This may not exist, if player just drew highest card in suit.
+        const next_card = next_card_in_suit(deck, suit, card.value);
+        if (next_card !== undefined) {
+            next_card.location = "xp";
+        }
+        // Return true to indicate a card was drawn to hand.
+        return true;
+    }
+    return false;
 }
 
 // Cut down a list of card indeces to those that match a property.
@@ -236,6 +248,29 @@ function cards_in_location(deck, location) {
     return deck.cards.filter((card) => card.location == location);
 }
 
+/**
+ * Returns the first card in the deck with the specfied suit,
+ * and the next highest value.
+ * If no such card exists, returns `undefined`.
+ * @param deck deck
+ * @param string suit
+ * @param string value
+ */
+function next_card_in_suit(deck, suit, value) {
+    let next_value = NaN;
+    if (value.toLowerCase() == "a") {
+        next_value = "2";
+    } else {
+        const next_number = Number(value) + 1;
+        next_value = String(next_number);
+    }
+    return deck.cards.find(
+        (card) =>
+            card.suit.toLowerCase() == suit.toLowerCase() &&
+            card.value.toLowerCase() == next_value.toLowerCase()
+    );
+}
+
 function draw_cards(deck, number) {
     let drawable = cards_in_location(deck, "deck");
     if (number > drawable.length) {
@@ -264,5 +299,6 @@ module.exports = {
     find_deck_id,
     gain_exp,
     is_valid_card,
+    next_card_in_suit,
     show_cards_in_zone,
 };

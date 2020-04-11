@@ -120,6 +120,7 @@ client.on('message', message=>{
             .addField('!check','Allows the GM to perform a skill check, flipping up cards and replacing them in the deck.')
             .addField('!force @player #value of #suit #property #argument','Forces the property of a card in @player deck to be #argument.')
             .addField('!website or !pdf','Shows you how you can support Praxis Arcanum and pick up the rulebook');
+            message.channel.send(embed);
             break;
 
         case 'gross': //debugging tool, calling requests from the bot as though it was a player.
@@ -576,35 +577,43 @@ client.on('message', message=>{
                     message.channel.send('Card format was invalid. Please format as !force @player value of suit property input.');
                     return;
                 }
-                forcedcard = mygame.decks[deckid].cards.filter(card => card.value == c_value && card.suit == c_suit && card.owner == playerid); // should only return one card
-                if (forcedcard.length != 1){
-                    message.channel.send('This card was an invalid part of the deck. Either too many or too few of them exist. This is a weird bug.');
+                const forced_card = mygame.decks[deckid].cards.find(card => {
+                    return  card.value.toLowerCase() == c_value.toLowerCase() 
+                        && card.suit.toLowerCase() == c_suit.toLowerCase() 
+                        && card.owner == playerid
+                }); // may return a card or undefined
+                if (forced_card === undefined){
+                    message.channel.send('This card should be valid, but was not found.');
+                    return;
                 }
                 
-                switch (args[5].toLowerCase()){
-                    case 'location':
-                        const possible_locations = ['hand','deck','xp','discard','lost','reserve']; //TODO: These locations, along with values and suits, should be constants defined in one common location.
-                        if (possible_locations.includes(args[6].toLowerCase())){
-                            forcedcard[0].location = args[6];
-                        }
-                        message.channel.send('The ' + c_value + ' of ' + c_suit + 'was forced to the ' + args[6]);
-                        break;
+                const possible_values = {
+                    location: ['hand','deck','xp','discard','lost','reserve'],
+                    value: ['a','2','3','4','5','6','7','8','9'],
+                    suit: ['clubs','spades','diamonds','hearts'],
+                    xp: [0,1,2,3,4,5,6,7,8,9],
+                    max_xp: [0,1,2,3,4,5,6,7,8,9],
+                };
+                const property = args[5].toLowerCase();
+                const new_value = args[6];
+                switch (property){
                     case 'praxis':
                         Deck.create_praxis(forcedcard[0],message, c_value, c_suit);
                         break;
+                    case 'location':
                     case 'value':
-                        const possible_values = ['a','2','3','4','5','6','7','8','9'];
-                        if (possible_values.includes(args[6].toLowerCase())){
-                            forcedcard[0].value = args[6];
-                        }
-                        message.channel.send('The ' + c_value + ' of ' + c_suit + 'was forced to become a ' + args[6]);
-                        break;
                     case 'suit':
-                        const possible_suits = ['clubs','spades','diamonds','hearts'];
-                        if (possible_suits.includes(args[6].toLowerCase())){
-                            forcedcard[0].suit = args[6];
+                    case 'xp':
+                    case 'max_xp':
+                        if (possible_values[property].includes(new_value.toLowerCase())){
+                            message.channel.send('The ' + property + ' of ' + forced_card.name() + ' was forced to ' + new_value + '.');
+                            forced_card[property] = new_value;
+                        } else {
+                            message.channel.send(new_value + ' is not a valid ' + property + '.');
                         }
-                        message.channel.send('The ' + c_value + ' of ' + c_suit + 'was forced to become a ' + args[6]);
+                        break;
+                    default:
+                        message.channel.send('The property ' + property + ' of cards does not exist, or cannot be forced.');
                         break;
                 }  
                 
