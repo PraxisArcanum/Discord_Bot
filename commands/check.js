@@ -4,8 +4,12 @@ const Deck = require('../deckHelpers.js');
 module.exports = {
     name: 'check',
     description: 'Draws cards from a deck then replaces them',
+<<<<<<< HEAD
     execute(message, args, deck, embed, curr_game){
 
+=======
+    execute(message, args, deck, embed, lastcheck){
+>>>>>>> 1e08e8b3cfb4a946c9a995be186af3fc86f8bd81
         // Make sure there are cards to draw
         if (args.length < 2){
             num_to_draw = 3; // default check is 3
