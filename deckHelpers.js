@@ -236,16 +236,26 @@ function show_cards_in_zone(game, message, embed, zone) {
 }
 
 function is_valid_card(value, suit) {
-    all_values = ["a", "2", "3", "4", "5", "6", "7", "8", "9"];
-    all_suits = ["spades", "diamonds", "clubs", "hearts"];
     return (
-        all_values.includes(value.toLowerCase()) &&
-        all_suits.includes(suit.toLowerCase())
+        (possible_values()).includes(value.toLowerCase()) &&
+        (possible_suits()).includes(suit.toLowerCase())
     );
 }
 
 function cards_in_location(deck, location) {
     return deck.cards.filter((card) => card.location == location);
+}
+
+function possible_locations() {
+    return ['hand','deck','xp','discard','lost','reserve','swap','destroyed'];
+}
+
+function possible_values() {
+    return ['a','2','3','4','5','6','7','8','9'];
+}
+
+function possible_suits() {
+    return ['clubs','spades','diamonds','hearts'];
 }
 
 /**
@@ -286,6 +296,17 @@ function draw_cards(deck, number) {
     return drawn;
 }
 
+function clean_swap(mygame, sender_deckid, recipient_deckid, sw_card) {
+    let original_card_copy = mygame.decks[sender_deckid].cards.filter(card => ( (card.value == sw_card.value) && (card.suit == sw_card.suit) ));
+    console.log(original_card_copy);
+    let original_card_index = mygame.decks[sender_deckid].cards.indexOf(original_card_copy[0]);
+    console.log(original_card_index);
+    mygame.decks[sender_deckid].cards[original_card_index].location = 'discard';
+    // delete temporary swapped card
+    mygame.decks[recipient_deckid].cards.splice(mygame.decks[recipient_deckid].cards.indexOf(sw_card));
+    return;
+} // the played card was previously swapped
+
 module.exports = {
     card,
     deck,
@@ -293,6 +314,7 @@ module.exports = {
     add_answer,
     card_ids_that_match_prop,
     cards_in_location,
+    clean_swap,
     create_praxis,
     draw_cards,
     find_cards_in_location,
@@ -300,5 +322,8 @@ module.exports = {
     gain_exp,
     is_valid_card,
     next_card_in_suit,
-    show_cards_in_zone,
+    possible_locations,
+    possible_suits,
+    possible_values,
+    show_cards_in_zone
 };

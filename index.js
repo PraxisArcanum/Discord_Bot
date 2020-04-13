@@ -11,14 +11,14 @@
 // undo?? or ways to force cards to move locations
 // Compare GM check with played card from a player
 // make sure reshuffle is losing one highest one lowest
-// walk through session zero to assign GM cards
 // keep a separate doc that remembers the last open game - on ready, checks if game is saved in the guild? y: loads, n: makes 'none' game and saves it to memory. Updates on !new, !close, !load
 // crucibles
 // jokers??
 // way to force cards to different locations
 
-// Force
-// typo in reshuffle
+// swap
+// soft saves in case bot crashes
+// update help with !play arguments and !think quickly
 
 
 // Requires and setup
@@ -346,7 +346,7 @@ client.on('message', message=>{
             // instead of this being fixed in place, we could have it look for "of", and choose args[n-1], args[n+1]? Might be weird. Maybe only if the fixed attempt doesn't work?
             let do_resist = args.includes('-resist');
             let do_help = args.includes('-help');
-            let do_praxis = args.includes('-praxis'); //still not implemented
+            let do_praxis = args.includes('-praxis') || args.includes('praxis') ;
 
             if (args.length<4){
                 message.channel.send('Please specify the card by number and suit (i.e. !play A of Spades)');
@@ -371,7 +371,6 @@ client.on('message', message=>{
             && card.location.toLowerCase() == 'hand')); // this should only return one card
 
             console.log(foundcards);
-            //return;
 
             if (foundcards.length != 1){
                 message.channel.send('The card you requested wasn\'t in hand.');
@@ -387,7 +386,7 @@ client.on('message', message=>{
                 autodraw = false;
             } else if (mygame.decks[deckid].role == 'Player'){
                 if (do_resist){
-                    desination = 'hand';
+                    destination = 'hand';
                     autodraw = false;
                 } else {
                     destination = 'discard';
@@ -396,8 +395,13 @@ client.on('message', message=>{
             }
             foundcards[0].location = destination;
             message.channel.send('Played the '+c_value+' of '+c_suit);
+            let clean_swap = foundcards[0].owner != mygame.decks[deckid].user;
 
-            if (args.includes('praxis')){
+            if (clean_swap){
+                Deck.clean_swap(mygame,foundcards[0].max_xp,deckid,foundcards[0]);
+            } // the played card was previously swapped
+
+            if (do_praxis && !clean_swap){
                 Deck.create_praxis(foundcards[0],message, c_value, c_suit);
             }
 
@@ -428,7 +432,9 @@ client.on('message', message=>{
                 .addField('Praxis',foundcards[0].praxis,true)
                 .addField('\u200B','\u200B',true);
 
-                message.channel.send(mygame.lastcheck);}
+                message.channel.send(mygame.lastcheck);
+            }
+
             break;
 
 
@@ -587,10 +593,10 @@ client.on('message', message=>{
                     return;
                 }
                 
-                const possible_values = {
-                    location: ['hand','deck','xp','discard','lost','reserve'],
-                    value: ['a','2','3','4','5','6','7','8','9'],
-                    suit: ['clubs','spades','diamonds','hearts'],
+                const possible_properties = {
+                    location: Deck.possible_locations(),
+                    value: Deck.possible_values(),
+                    suit: Deck.possible_suits(),
                     xp: [0,1,2,3,4,5,6,7,8,9],
                     max_xp: [0,1,2,3,4,5,6,7,8,9],
                 };
@@ -605,7 +611,7 @@ client.on('message', message=>{
                     case 'suit':
                     case 'xp':
                     case 'max_xp':
-                        if (possible_values[property].includes(new_value.toLowerCase())){
+                        if (possible_properties[property].includes(new_value.toLowerCase())){
                             message.channel.send('The ' + property + ' of ' + forced_card.name() + ' was forced to ' + new_value + '.');
                             forced_card[property] = new_value;
                         } else {
@@ -692,6 +698,48 @@ client.on('message', message=>{
             message.channel.send(mygame.lastcheck);
             return;
 
+        case 'swap':
+            // Allows you to trade cards with another player. A card from the calling player's hand goes to the receiving player
+            let sender = {
+                deckid: Deck.find_deck_id(mygame,message.author.id),
+                card: []
+            };
+            let recipient = {
+                deckid: [],
+                card: [],
+                id: []
+            }
+
+            if (args.length < 4) {
+                message.channel.send('Please format as !swap @player #value of #suit or !swap #value of #suit @player.');
+                return;
+            }
+            if ( (Deck.is_valid_card(args[1],args[3])) && (args[4].length == 22) ) {
+                recipient.id = args[4].substring(3,args[4].length-1);
+                recipient.deckid = Deck.find_deck_id(mygame,recipient.id);
+                c_value = args[1].toLowerCase();
+                c_suit = args[3].toLowerCase();
+            } else if ( (Deck.is_valid_card(args[2],args[4])) && (args[1].length == 22) ) {
+                recipient.id = args[1].substring(3,args[1].length-1);
+                recipient.deckid = Deck.find_deck_id(mygame,recipient.id);
+                c_value = args[2].toLowerCase();
+                c_suit = args[4].toLowerCase();
+            }
+            sender.card = mygame.decks[sender.deckid].cards.filter(card => ( (card.location == 'hand') && (card.value.toLowerCase() == c_value) && (card.suit.toLowerCase() == c_suit) ) )[0];
+
+            if ( (recipient.deckid == sender.deckid) || (recipient.deckid == -1) ) {
+                message.channel.send('This was an invalid player to swap cards with.');
+                return;
+            }
+            mygame.decks[recipient.deckid].cards[mygame.decks[recipient.deckid].cards.length] = 
+            (new Deck.card(sender.card.suit, sender.card.value, sender.deckid, sender.card.praxis, sender.card.location, sender.card.owner));
+            // I've hijacked the max_xp field for swaps.
+            recipient.card = mygame.decks[recipient.deckid].cards[mygame.decks[recipient.deckid].cards.length-1];
+
+            sender.card.location = 'swap';
+            message.channel.send('Card swapped. Make sure to receive one back if you haven\'t already');
+            break;
+            
 
 
 
