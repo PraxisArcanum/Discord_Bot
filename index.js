@@ -339,6 +339,11 @@ client.on('message', message=>{
             embed = new Discord.MessageEmbed()    
             Deck.show_cards_in_zone(mygame,message,embed,'lost');
             break;
+        
+        case 'destroyed': // Shows the player their lost cards
+            embed = new Discord.MessageEmbed()    
+            Deck.show_cards_in_zone(mygame,message,embed,'destroyed');
+            break;
             
 
         case 'play':
@@ -739,7 +744,36 @@ client.on('message', message=>{
             sender.card.location = 'swap';
             message.channel.send('Card swapped. Make sure to receive one back if you haven\'t already');
             break;
-            
+        
+        case 'crucible':
+            // Should be !crucible value of suit and needs to have a praxis. Will interact with Praxisgame.lastcheck
+            if (args.length < 4) {
+                message.channel.send('Please format as !crucible #value of #suit. Crucibles must have a praxis and be in your hand.');
+                return;
+            } else {
+                if (Deck.is_valid_card(args[1],args[3])) {
+                    deckid = Deck.find_deck_id(mygame,message.author.id);
+                    crucible_card = mygame.decks[deckid].cards.filter( n => (n.location == 'hand' && 
+                    n.praxis != 'blank' &&
+                    n.value.toLowerCase() == args[1].toLowerCase() && 
+                    n.suit.toLowerCase() == args[3].toLowerCase()) );
+                    if (crucible_card.length < 1) {
+                        message.channel.send('Could not find the crucible card in your !hand');
+                        return;
+                    }
+                    crucible_card[0].location = 'destroyed';
+                    
+                    mygame.lastcheck
+                    .addField(message.author.username + '\'s Crucible Card',crucible_card[0].name(),true)
+                    .addField('Praxis',crucible_card[0].praxis,true)
+                    .addField('\u200B','\u200B',true);
+
+                    message.channel.send(mygame.lastcheck);
+                } else {
+                    message.channel.send('That card doesn\'t exist. Check for typos.');
+                }
+            }
+            break;
 
 
 
