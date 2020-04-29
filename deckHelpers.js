@@ -87,6 +87,7 @@ class Praxisgame {
         this.decks = [new deck(admin, "GM")];
         this.channelID = chID;
         this.lastcheck = new Discord.MessageEmbed();
+        this.active = false;
     }
 }
 

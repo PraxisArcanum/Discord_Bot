@@ -1,5 +1,6 @@
 # DiscordBot storage
 savedgames.json
+softsavedgames.json
 
 # Logs
 logs

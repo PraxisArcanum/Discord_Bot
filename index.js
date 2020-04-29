@@ -7,18 +7,15 @@
 
 // TO DO SOME OTHER DAY:
 // a !help command would be super handy
-// Swapping cards will get messy, since they need to have an owner?
-// undo?? or ways to force cards to move locations
-// Compare GM check with played card from a player
 // make sure reshuffle is losing one highest one lowest
 // keep a separate doc that remembers the last open game - on ready, checks if game is saved in the guild? y: loads, n: makes 'none' game and saves it to memory. Updates on !new, !close, !load
-// crucibles
 // jokers??
-// way to force cards to different locations
-
-// swap
+// increase difficulty (in base game)
 // soft saves in case bot crashes
 // update help with !play arguments and !think quickly
+// develop at end of session?
+// save/load has issues in recognizing Deck. commands
+// !migrate
 
 
 // Requires and setup
@@ -50,6 +47,7 @@ for (const file of commandFiles){
 
 // Creating a file of saved games
 client.savedgames = require('./savedgames.json');
+client.softsavedgames = require('./softsavedgames.json');
 
 // Constants
 const worldbuilding_prompts = [
@@ -77,6 +75,39 @@ const characterbuilding_prompts = [
 // Passive functions, when the bot starts up
 client.on('ready', () =>{
     console.log('This bot is online!');
+
+    var all_keys = Object.keys(client.softsavedgames);
+    for (i = 0; i < all_keys.length; i++) { //Iterates over all games
+        mygame = client.softsavedgames[all_keys[i]].game;
+        for (k = 0; k < mygame.decks.length; k++) { //Iterates over all decks
+            for (j = 0; j < mygame.decks[k].cards.length; j++) { //Iterates over all cards
+                mygame.decks[k].cards[j].__proto__ = Deck.card.prototype; //When we load in the deck, it doesn't register the cards as Deck.card objects, so this fixes it.
+            }
+        }
+        if (mygame.active) {
+            all_games[i] = mygame;
+        }
+    }
+//        
+
+
+//    thisgameindex = all_games.findIndex(game => game.channelID == message.channel.id);
+//    attempt_to_load = client.savedgames[message.author.id + ' in ' + message.channel.id];
+
+//    if (typeof attempt_to_load == 'undefined'){
+//        message.channel.send('Failure to load game. You either have no saved games, or are in the wrong channel.'+
+//        'If you would like to move a game from another channel to this one, send a command using the !migrate function from that original channel.');
+//        console.log(message.author.id + ' in ' + message.channel.id);
+//        return;
+//    }
+
+//    all_games[thisgameindex] = mygame;
+    
+//    message.channel.send('Loaded your previous game, ID: '+mygame.ID);
+//    for (i=0; i<mygame.decks.length; i++){
+//        message.channel.send(mygame.decks[i].role + ' ' + i + ': <@!' + mygame.decks[i].user + '>');
+//    }
+//    message.channel.send('Remember, you can start a new session by typing !new session');
 })
 
 // Triggers on messages coming in
@@ -95,6 +126,14 @@ client.on('message', message=>{
         all_games.push(mygame);
     } else {
         mygame = current_game[0];
+    }
+
+    // perform a soft save whenever the GM speaks to the bot, just in case the bot ever goes down.
+    if (message.author.id == mygame.admin){
+        client.softsavedgames [message.author.id+' in '+message.channel.id] = {
+            game: mygame
+        }
+        fs.writeFileSync('./softsavedgames.json',JSON.stringify(client.softsavedgames, null, 4));
     }
 
     let args = message.content.substring(PREFIX.length).split(/ +/); //I assume this mean args are split by spaces
@@ -201,6 +240,7 @@ client.on('message', message=>{
                     if (mygame.admin == 'none'){
                         thisgameindex = all_games.findIndex(game => game.channelID == message.channel.id);
                         mygame = new Deck.Praxisgame(message.author.id,message.id,message.channel.id);
+                        mygame.active = true;
                         all_games[thisgameindex] = mygame;
                         message.channel.send('<@!'+ message.author.id +'>, Started GMing a new game of Praxis Arcanum! \n'+'Add new players by typing !add @player.');
                     } else {
@@ -554,7 +594,17 @@ client.on('message', message=>{
                     return;
                 }
 
-                mygame = client.savedgames [message.author.id+' in '+message.channel.id].game;
+                if (args.filter(cmd => cmd == '-quick').length < 1) {
+                    mygame = client.savedgames [message.author.id+' in '+message.channel.id].game;
+                } else {
+                    mygame = client.softsavedgames [message.author.id+' in '+message.channel.id].game;
+                }
+                mygame.active = true;
+                for (k = 0; k < mygame.decks.length; k++) {
+                    for (j = 0; j < mygame.decks[k].cards.length; j++) {
+                        mygame.decks[k].cards[j].__proto__ = Deck.card.prototype; //When we load in the deck, it doesn't register the cards as Deck.card objects, so this fixes it.
+                    }
+                }
                 all_games[thisgameindex] = mygame;
                 
                 message.channel.send('Loaded your previous game, ID: '+mygame.ID);
@@ -633,9 +683,35 @@ client.on('message', message=>{
 
 
         case 'close':
+            if (args.length < 2) {
+                message.channel.send('Please format this request as !close game. Include a -nosave if you DO NOT want it to save on closing.');
+            }
+            var do_save = true;
+            if (args.length = 3) {
+                if (args[2] == '-nosave') {
+                    do_save = false;
+                }
+            }
             if (args[1] == 'game' && message.author.id == mygame.admin){
-                // TODO: Maybe add some kind of prompt/reminder to save?
+                // TODO: Maybe add a way to close without saving.
                 thisgameindex = all_games.findIndex(game => game.channelID == message.channel.id);
+
+                // hard save it
+                if (do_save) {
+                    mygame.active = false;
+                    client.savedgames[message.author.id+' in '+message.channel.id] = {
+                        game: mygame
+                    }
+                    fs.writeFileSync('./savedgames.json',JSON.stringify(client.savedgames, null, 4));
+                    message.channel.send('Game saved!');
+                }
+                // do soft save no matter what
+                client.softsavedgames[message.author.id+' in '+message.channel.id] = {
+                    game: mygame
+                }
+                fs.writeFileSync('./softsavedgames.json',JSON.stringify(client.softsavedgames, null, 4));
+
+                // create a new surrogate game
                 mygame = new Deck.Praxisgame('none','-1',message.channel.id);
                 all_games[thisgameindex] = mygame;
 
