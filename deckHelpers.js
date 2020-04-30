@@ -136,6 +136,9 @@ function add_answer(card, message, c_value, c_suit) {
         message.content.search("answer") + 7,
         message.content.length
     );
+    if (answer_msg == '') {
+        answer_msg = 'blank';
+    }
     card.praxis = answer_msg;
     message.channel.send('Added "' + answer_msg + '" as the answer');
     return;

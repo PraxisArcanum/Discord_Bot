@@ -26,14 +26,9 @@ const token = process.env.DISCORD_BOT_TOKEN;
 const PREFIX ='!';
 const fs = require('fs');
 let cardsinhand = [];
-let cardsindiscard = [];
 let embed = new Discord.MessageEmbed();
 var all_games = [];
 var mygame;
-let waiting = {
-    onReply: false,
-    user: 'none'
-}
 
 // Creating a new collection of commands, in the appropriate folder
 client.commands = new Discord.Collection();
@@ -105,7 +100,6 @@ client.on('message', message=>{
     } else {
         mygame = current_game[0];
     }
-    console.log(all_games);
 
     // perform a soft save whenever the GM speaks to the bot, just in case the bot ever goes down.
     if (message.author.id == mygame.admin){
@@ -243,11 +237,10 @@ client.on('message', message=>{
                         let deckid = Deck.find_deck_id(mygame, playerid);
                         if (deckid == -1){ //if they don't already have a deck...
                             console.log(playerid);
-                            console.log(mygame.decks.length);
                             message.channel.send('<@!'+playerid+'> is not a current player of the game. Use !add @player. !new deck should only be used to remake an existing deck.');
                             return;
                         } else { //if they do have a deck
-                            mygame.decks[mygame.decks[deckid]] = new Deck.deck(playerid,mygame.decks[deckid].role);
+                            mygame.decks[deckid] = new Deck.deck(playerid,mygame.decks[deckid].role);
                             message.channel.send('New player deck was remade for <@!'+playerid+'>');
                             return;
                         }
@@ -714,9 +707,14 @@ client.on('message', message=>{
                         cardorder = [2,0,3,1,7,5,4,6,9,10,11,13,8]; //TODO: This is fragile, may cause a bug at some point.
                         for (i = 0; i < cardorder.length; i++){
                             if (mygame.decks[deckid].cards[cardorder[i]].praxis == 'blank'){
+                                if (args.length < 2) {
+                                    message.channel.send('Format your answer as !answer <input>.');
+                                    message.channel.send(worldbuilding_prompts[i]);
+                                    return;
+                                }
                                 Deck.add_answer(mygame.decks[deckid].cards[cardorder[i]],message);
                                 if (i+1 < cardorder.length) {
-                                    message.channel.send(worldbuilding_prompts[i+1]); //TODO: Tries to send an empty message after last question which causes error.
+                                    message.channel.send(worldbuilding_prompts[i+1]);
                                     return;
                                 } else {
                                     mygame.decks[deckid].setup_complete = true;
@@ -727,23 +725,29 @@ client.on('message', message=>{
                                 }
                             }
                         }
-                    } else if (mygame.decks[deckid].role == 'Player' && mygame.decks[find_deck_id(mygame,mygame.admin)].setup_complete){ //needs player incomplete, GM complete
-                        cardorder = [2,0,3,1];
-                        for (var cardid in cardorder){
-                            if (mygame.decks[deckid].cards[cardid].praxis == 'blank'){
-                                Deck.add_answer(mygame.decks[deckid].cards[cardid],message);
-                                
-                                if (i+1 < cardorder.length) {
-                                    message.channel.send(characterbuilding_prompts[cardorder.findIndex(cardid)]);
+                    } else if (mygame.decks[deckid].role == 'Player' && mygame.decks[Deck.find_deck_id(mygame,mygame.admin)].setup_complete){ //needs player incomplete, GM complete
+                        var cardorder = [10,8,11,9];
+                        for (i = 0; i < cardorder.length; i++){
+                            if (mygame.decks[deckid].cards[cardorder[i]].praxis == 'blank'){
+                                if (args.length < 2) {
+                                    message.channel.send('Format your answer as !answer <input>.');
+                                    message.channel.send(characterbuilding_prompts[i]);
+                                    return;
+                                }
+                                Deck.add_answer(mygame.decks[deckid].cards[cardorder[i]],message); //writes the answer on a blank card
+                                if (i != cardorder.length-1) { // so long as we didnt just write on the last card in order,
+                                    message.channel.send(message.author.username+': '+characterbuilding_prompts[i+1]); // send the next prompt
                                     return;
                                 } else {
                                     mygame.decks[deckid].setup_complete = true;
-                                    message.channel.send('You\'ve completed your Session Zero character questionaire. ' +
+                                    message.channel.send(message.author.username+': '+'You\'ve completed your Session Zero character questionaire. ' +
                                     'Now, each player should discuss how their know at least one other PC. Then the GM can start the !new session!');
                                     return;
                                 }   
                             }                            
                         }
+                        // If you got here without a return, it's because you reached the end of cardorder without finding a blank.
+                        message.channel.send('Looks like you\'re all done for now. Just sit tight until all players finish answering, then your GM can start a !new session.');
                     } else {
                         message.channel.send('Please wait for the GM to finish their !answer to the GM worldbuilding first.');
                         return;
