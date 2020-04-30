@@ -11,10 +11,8 @@
 // keep a separate doc that remembers the last open game - on ready, checks if game is saved in the guild? y: loads, n: makes 'none' game and saves it to memory. Updates on !new, !close, !load
 // jokers??
 // increase difficulty (in base game)
-// soft saves in case bot crashes
 // update help with !play arguments and !think quickly
 // develop at end of session?
-// save/load has issues in recognizing Deck. commands
 // !migrate
 
 
@@ -85,29 +83,9 @@ client.on('ready', () =>{
             }
         }
         if (mygame.active) {
-            all_games[i] = mygame;
+            all_games.push(mygame);
         }
     }
-//        
-
-
-//    thisgameindex = all_games.findIndex(game => game.channelID == message.channel.id);
-//    attempt_to_load = client.savedgames[message.author.id + ' in ' + message.channel.id];
-
-//    if (typeof attempt_to_load == 'undefined'){
-//        message.channel.send('Failure to load game. You either have no saved games, or are in the wrong channel.'+
-//        'If you would like to move a game from another channel to this one, send a command using the !migrate function from that original channel.');
-//        console.log(message.author.id + ' in ' + message.channel.id);
-//        return;
-//    }
-
-//    all_games[thisgameindex] = mygame;
-    
-//    message.channel.send('Loaded your previous game, ID: '+mygame.ID);
-//    for (i=0; i<mygame.decks.length; i++){
-//        message.channel.send(mygame.decks[i].role + ' ' + i + ': <@!' + mygame.decks[i].user + '>');
-//    }
-//    message.channel.send('Remember, you can start a new session by typing !new session');
 })
 
 // Triggers on messages coming in
@@ -127,6 +105,7 @@ client.on('message', message=>{
     } else {
         mygame = current_game[0];
     }
+    console.log(all_games);
 
     // perform a soft save whenever the GM speaks to the bot, just in case the bot ever goes down.
     if (message.author.id == mygame.admin){
@@ -715,7 +694,7 @@ client.on('message', message=>{
                 mygame = new Deck.Praxisgame('none','-1',message.channel.id);
                 all_games[thisgameindex] = mygame;
 
-                message.channel.send('Your game is now closed - Thanks for playing! Anyone else can now start their own game.')
+                message.channel.send('Your game and is now closed - Thanks for playing! Anyone else can now start their own game.')
             }
             break;
 
@@ -851,6 +830,35 @@ client.on('message', message=>{
             }
             break;
 
+        case 'migrate':
+            // move a game from one channel to another in the same server
+            if (args.length < 2) {
+                message.channel.send('Please format as !migrate #channel.');
+            }
+            console.log(args);
+            
+            // overwrite the existing save with a blank
+            client.savedgames[message.author.id+' in '+message.channel.id] = {
+                game: new Deck.Praxisgame('none','-1',message.channel.id)
+            }
+            fs.writeFileSync('./savedgames.json',JSON.stringify(client.savedgames, null, 4));
+            
+            if (args[1].length == 21) {
+                movefrom = mygame.channelID;
+                moveto = args[1].substring(2,20);
+                mygame.channelID = moveto;
+                message.channel.send('Game migrated from <#'+ movefrom + '> to <#' + moveto + '>'); // This WILL overwrite the game if it's migrated to a channel with another game.
+                
+                mygame.active = false;
+                client.savedgames[message.author.id+' in '+ moveto] = {
+                    game: mygame
+                }
+                fs.writeFileSync('./savedgames.json',JSON.stringify(client.savedgames, null, 4));
+                all_games.pop(all_games.indexOf(mygame)); // delete the game where it is (to ensure we don't have two open games in the moveto channel).
+
+            } else {
+                message.channel.send('Please format as !migrate #channel.');
+            }
 
 
 
