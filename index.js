@@ -368,6 +368,23 @@ client.on('message', message=>{
             Deck.show_cards_in_zone(mygame,message,embed,'hand');
             break;
 
+        case 'run': //changes the messages desplayed in the channel
+            let possible_running_modes = ['loud','quiet'];
+            if (message.author.id == mygame.admin) {
+                if (args.length<2) {
+                    message.channel.send('Specify the running mode of bot feedback, either !run loud or !run quiet');
+                } else {
+                    if (possible_running_modes.includes(args[2])) {
+                        mygame.runningmode = args[2];
+                    } else {
+                        message.channel.send('Specify the running mode as either !run loud or !run quiet');
+                    }
+                }
+                break;
+            } else {
+                break;
+            }
+
         
         case 'deck': // Shows the player their deck
             embed = new Discord.MessageEmbed()    
@@ -840,8 +857,8 @@ client.on('message', message=>{
                 return;
             }
 
-            let played_a_joker = args.includes('Joker'); // If "Joker is in the arguments
-            if (played_a_joker) {
+            let swap_joker = args.includes('Joker'); // If "Joker is in the arguments
+            if (swap_joker) {
                 message.channel('You cannot swap a Joker from your hand. It will leave at the start of a !new session.');
                 return;
             }

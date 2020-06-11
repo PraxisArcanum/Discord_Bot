@@ -98,6 +98,7 @@ class Praxisgame {
         this.channelID = chID;
         this.lastcheck = new Discord.MessageEmbed();
         this.active = false;
+        this.runningmode = 'loud';
     }
 }
 
@@ -318,6 +319,13 @@ function update_personal_channel(client,game,deck) {
         author: {
             id: deck.user
         }
+    }
+
+    console.log(client.guilds.cache.get(`${game.guildID}`).channels.cache.keyArray());
+    console.log(deck.chatchannelid);
+    let t_k_arr = client.guilds.cache.get(`${game.guildID}`).channels.cache.keyArray();
+    if (!t_k_arr.includes(deck.chatchannelid)) {
+        return;
     }
     
     // Delete last
