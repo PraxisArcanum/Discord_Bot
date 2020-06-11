@@ -16,7 +16,11 @@ class card {
         this.owner = user;
     }
     name() {
-        return this.value + " of " + this.suit;
+        if (this.value == "Joker") {
+            return this.suit + " " + this.value;
+        } else {
+            return this.value + " of " + this.suit;
+        }
     }
 }
 
@@ -24,6 +28,8 @@ class deck {
     constructor(user, role) {
         this.user = user;
         this.role = role;
+        this.chatchannelid = -1;
+        this.chatchannelname = '';
         this.setup_complete = false;
         this.cards = [
             new card("Clubs", "A", 1, "blank", "deck", user),
@@ -64,6 +70,9 @@ class deck {
             new card("Hearts", "9", 9, "blank", "reserve", user),
             new card("Diamonds", "9", 9, "blank", "reserve", user),
             new card("Spades", "9", 9, "blank", "reserve", user),
+
+            new card("Red", "Joker", 10000, "blank", "reserve", user),
+            new card("Black", "Joker", 10000, "blank", "reserve", user)
         ];
         if (role == "Player") {
             this.cards[12].location = "xp";
@@ -80,10 +89,11 @@ class deck {
 }
 
 class Praxisgame {
-    constructor(admin, messageID, chID) {
+    constructor(admin, messageID, chID, gID) {
         this.ID = messageID;
         this.admin = admin;
         this.session = -1;
+        this.guildID = gID;
         this.decks = [new deck(admin, "GM")];
         this.channelID = chID;
         this.lastcheck = new Discord.MessageEmbed();
@@ -255,11 +265,11 @@ function possible_locations() {
 }
 
 function possible_values() {
-    return ['a','2','3','4','5','6','7','8','9'];
+    return ['a','2','3','4','5','6','7','8','9','Joker'];
 }
 
 function possible_suits() {
-    return ['clubs','spades','diamonds','hearts'];
+    return ['clubs','spades','diamonds','hearts','red','black'];
 }
 
 /**
@@ -300,6 +310,28 @@ function draw_cards(deck, number) {
     return drawn;
 }
 
+function update_personal_channel(client,game,deck) {
+    // construct a fake "message" and call show_cards_in_zone
+
+    var surr_message = {
+        channel:  client.guilds.cache.get(`${game.guildID}`).channels.cache.get(`${deck.chatchannelid}`),
+        author: {
+            id: deck.user
+        }
+    }
+    
+    // Delete last
+    tt = Array.from(surr_message.channel.messages.cache.keys());
+    for (var allmessages in tt) {
+        console.log(allmessages);
+        surr_message.channel.messages.cache.get(tt[allmessages]).delete();
+    }
+
+    //console.log(surr_message.author.id);
+    show_cards_in_zone(game,surr_message,[],'hand');
+}
+
+
 function clean_swap(mygame, sender_deckid, recipient_deckid, sw_card) {
     let original_card_copy = mygame.decks[sender_deckid].cards.filter(card => ( (card.value == sw_card.value) && (card.suit == sw_card.suit) ));
     console.log(original_card_copy);
@@ -329,5 +361,6 @@ module.exports = {
     possible_locations,
     possible_suits,
     possible_values,
-    show_cards_in_zone
+    show_cards_in_zone,
+    update_personal_channel
 };

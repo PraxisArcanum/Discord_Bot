@@ -6,14 +6,10 @@
 
 
 // TO DO SOME OTHER DAY:
-// a !help command would be super handy
 // make sure reshuffle is losing one highest one lowest
-// keep a separate doc that remembers the last open game - on ready, checks if game is saved in the guild? y: loads, n: makes 'none' game and saves it to memory. Updates on !new, !close, !load
 // jokers??
-// increase difficulty (in base game)
-// update help with !play arguments and !think quickly
 // develop at end of session?
-// !migrate
+// counters for how many times you can resist/swap/help/crucible & hand card limit
 
 
 // Requires and setup
@@ -69,6 +65,7 @@ const characterbuilding_prompts = [
 client.on('ready', () =>{
     console.log('This bot is online!');
 
+    //Soft-load the games that were last in progress, before the bot went down.
     var all_keys = Object.keys(client.softsavedgames);
     for (i = 0; i < all_keys.length; i++) { //Iterates over all games
         mygame = client.softsavedgames[all_keys[i]].game;
@@ -95,7 +92,7 @@ client.on('message', message=>{
         return;
     }
     if (current_game.length < 1){ // if no game was ever made for this channel...
-        mygame = new Deck.Praxisgame('none','-1',message.channel.id);
+        mygame = new Deck.Praxisgame('none','-1',message.channel.id, message.guild.id);
         all_games.push(mygame);
     } else {
         mygame = current_game[0];
@@ -115,23 +112,34 @@ client.on('message', message=>{
         case 'help':
         case 'commands':
             embed = new Discord.MessageEmbed()
-            .setTitle('Praxis Arcanum Discord Bot Commands')
+            .setTitle('Praxis Arcanum General Discord Bot Commands')
             .setColor(0xF1C40F)
             .addField('!rules or !demo','Shows you a link to an audio file with a brief overview of the game rules')
             .addField('!new game','Starts a new game with you as the GM. Only one open game can exist per channel. Creates a default GM deck for you too.')
-            .addField('!close game','Closes an open game, allowing someone else to start a game.')
+            .addField('!close game','Saves and closes your open game of Praxis, allowing someone else to start a !new game.')
             .addField('!add @player','Adds a user to the open game. Anyone can add anyone as a player. Creates a default player deck for them too.')
             .addField('!save game','Saves your open game. Only one game per GM per channel may be saved.')
             .addField('!load game','Loads a previously saved game.')
             .addField('!new session or !new episode','Keeps XP but moves all cards to their starting positions.')
-            .addField('!draw #','Draws a number of cards from your deck into your hand. If # is not specified, draws 1.')
-            .addField('!play #value of #suit','Plays the specified card from your hand.')
-            .addField('!motif #suit','Allows you to perform a motif of the specified #suit')
+            .addField('!force @player #value of #suit #property #argument','Forces the property of a card in @player deck to be #argument.')
+            .addField('!website or !pdf','Shows you how you can support Praxis Arcanum and pick up the rulebook.')
+            .addField('!answer','Used only during Episode Zero. When your GM is ready, they can start a !new session to receive prompts you can !answer.')
+            .addField('!migrate #move_channel','Moves the home channel of your game to the specified channel. Useful for running multiple games on one server.');
+            message.channel.send(embed);
+
+            embed = new Discord.MessageEmbed()
+            .setTitle('Praxis Arcanum In-game Discord Bot Commands')
+            .setColor(0xFF38CC)
+            .addField('!draw #','Draws a number of cards from your deck into your hand. If # is not specified, draws 1 card.')
+            .addField('!play #value of #suit','Plays the specified card from your hand. Add -praxis, -help, or -resist to do one of those special actions.')
+            .addField('!motif #suit','Allows you to perform a motif of the specified #suit.')
+            .addField('!think quickly','Allows you to think quickly, drawing a card from your deck.')
             .addField('!reshuffle #value of #suit and #value2 of #suit2', 'Reshuffles your discard while moving two specified cards to lost')
             .addField('!hand, !xp, !lost, !deck, !discard, or !reserve','Shows you the cards in the respective locations.')
             .addField('!check','Allows the GM to perform a skill check, flipping up cards and replacing them in the deck.')
             .addField('!force @player #value of #suit #property #argument','Forces the property of a card in @player deck to be #argument.')
-            .addField('!website or !pdf','Shows you how you can support Praxis Arcanum and pick up the rulebook');
+            .addField('!swap @player #value of #suit','Lets you take the special action to swap cards with another player.')
+            .addField('!crucible #value of #suit','Allows you to perform the special Crucible action, sacrificing a card forever.');
             message.channel.send(embed);
             break;
 
@@ -143,9 +151,13 @@ client.on('message', message=>{
 
         case 'check':
             deckid = Deck.find_deck_id(mygame, message.author.id);
-            embed = new Discord.MessageEmbed();
-            client.commands.get('check').execute(message,args,mygame.decks[deckid],embed,mygame);
-            break;
+            if (message.author.id == mygame.admin) {
+                embed = new Discord.MessageEmbed();
+                client.commands.get('check').execute(message,args,mygame.decks[deckid],embed,mygame);
+                break;
+            } else {
+                message.channel.send('Only the GM can do !check');
+            }
 
         case 'think':
             if (args[1] == 'quickly'){
@@ -158,7 +170,7 @@ client.on('message', message=>{
 
         case 'add':
             if (args.length<2){
-                message.channel.send('Ping the user you want to add to the game with an @ message');
+                message.channel.send('Ping the user you want to add to the game, !add @username');
             } else {
                 for(let i = 1; i < args.length; i++){
                     newplayerid = args[i].substring(3,args[i].length-1);
@@ -169,6 +181,14 @@ client.on('message', message=>{
                     let deckid = Deck.find_deck_id(mygame, newplayerid);
                     if (deckid == -1){
                         mygame.decks[mygame.decks.length] = new Deck.deck(newplayerid,'Player');
+                        message.guild.channels.create(`${message.guild.members.cache.get(newplayerid).user.username}`, {type: 'text'}).then(
+                            m=> {
+                                mygame.decks[mygame.decks.length-1].chatchannelid = m.id;
+                                mygame.decks[mygame.decks.length-1].chatchannelname = m.name;
+                                console.log(mygame.decks[mygame.decks.length-1]);
+                                Deck.update_personal_channel(client,mygame,mygame.decks[mygame.decks.length-1]);
+                            }
+                        );
                         message.channel.send('A new player deck was made for <@!'+newplayerid+'>. Welcome to the game!');
                     } else {
                         console.log(newplayerid);
@@ -194,6 +214,9 @@ client.on('message', message=>{
             }
 
             client.commands.get('draw').execute(message,args,mygame.decks[deckid], draw_n);
+            if (mygame.decks[deckid].chatchannelid != -1){
+                Deck.update_personal_channel(client, mygame, mygame.decks[deckid]);
+            }
             break;
 
 
@@ -212,9 +235,19 @@ client.on('message', message=>{
                 case 'game':
                     if (mygame.admin == 'none'){
                         thisgameindex = all_games.findIndex(game => game.channelID == message.channel.id);
-                        mygame = new Deck.Praxisgame(message.author.id,message.id,message.channel.id);
+                        mygame = new Deck.Praxisgame(message.author.id,message.id,message.channel.id, message.guild.id);
                         mygame.active = true;
                         all_games[thisgameindex] = mygame;
+
+                        message.guild.channels.create(`${message.author.username}`, {type: 'text'}).then(
+                            m=> {
+                                mygame.decks[mygame.decks.length-1].chatchannelid = m.id;
+                                mygame.decks[mygame.decks.length-1].chatchannelname = m.name;
+                                console.log(mygame.decks[mygame.decks.length-1]);
+                                Deck.update_personal_channel(client,mygame,mygame.decks[mygame.decks.length-1]);
+                            }
+                        );
+
                         message.channel.send('<@!'+ message.author.id +'>, Started GMing a new game of Praxis Arcanum! \n'+'Add new players by typing !add @player.');
                     } else {
                         message.channel.send('It looks like there is already a game in session, hosted by <@!'+mygame.admin+'>. Ask them to !save and !close game first.');
@@ -258,6 +291,19 @@ client.on('message', message=>{
                     }
                     
                     for (i = 0; i < mygame.decks.length; i++){
+                        // find Jokers and put them back in reserve.
+                        let j_idx = Deck.find_cards_in_location(mygame.decks[i],'hand').concat(
+                            Deck.find_cards_in_location(mygame.decks[i],'deck').concat(
+                                Deck.find_cards_in_location(mygame.decks[i],'discard')));
+                        for (crd = 0; crd<j_idx.length; crd++) {
+                            if (mygame.decks[i].cards[j_idx[crd]].value == 'Joker') {
+                                mygame.decks[i].cards[j_idx[crd]].location = 'reserve';
+                            }
+                            if (mygame.decks[i].cards[j_idx[crd]].max_xp.length == 18) { //hopefully this catches !swapped cards
+                                mygame.decks[i].cards[j_idx[crd]].location = 'destroyed';
+                            }
+                        }
+                        
                         // send cards in hand, lost, discard back to deck. Keep cards in xp and reserve.
                         let c_idx = Deck.find_cards_in_location(mygame.decks[i],'hand').concat(
                             Deck.find_cards_in_location(mygame.decks[i],'lost').concat(
@@ -352,7 +398,7 @@ client.on('message', message=>{
             Deck.show_cards_in_zone(mygame,message,embed,'lost');
             break;
         
-        case 'destroyed': // Shows the player their lost cards
+        case 'destroyed': // Shows the player their permanently lost cards
             embed = new Discord.MessageEmbed()    
             Deck.show_cards_in_zone(mygame,message,embed,'destroyed');
             break;
@@ -364,6 +410,12 @@ client.on('message', message=>{
             let do_resist = args.includes('-resist');
             let do_help = args.includes('-help');
             let do_praxis = args.includes('-praxis') || args.includes('praxis') ;
+            let played_a_joker = args.slice(1,3).includes('Joker'); // If "Joker is in the first three arguments"
+
+            if (played_a_joker) {
+                message.channel('You cannot play a Joker from your hand. It will leave at the start of a !new session.');
+                return;
+            }
 
             if (args.length<4){
                 message.channel.send('Please specify the card by number and suit (i.e. !play A of Spades)');
@@ -451,6 +503,9 @@ client.on('message', message=>{
 
                 message.channel.send(mygame.lastcheck);
             }
+            if (mygame.decks[deckid].chatchannelid != -1){
+                Deck.update_personal_channel(client, mygame, mygame.decks[deckid]);
+            }
 
             break;
 
@@ -509,7 +564,7 @@ client.on('message', message=>{
 
         case 'reshuffle':
             if (args.length < 9){
-                message.channel.send('Please format your request to reshuffle like this: !reshuffle lose <value> of <suit> and <value> of <suit>');
+                message.channel.send('Please format your request to reshuffle like this: !reshuffle');
             } else {
                 l_val_1 = args[2].toLowerCase();
                 l_sui_1 = args[4].toLowerCase();
@@ -636,11 +691,17 @@ client.on('message', message=>{
                     case 'location':
                     case 'value':
                     case 'suit':
-                    case 'xp':
-                    case 'max_xp':
                         if (possible_properties[property].includes(new_value.toLowerCase())){
                             message.channel.send('The ' + property + ' of ' + forced_card.name() + ' was forced to ' + new_value + '.');
-                            forced_card[property] = new_value;
+                        } else {
+                            message.channel.send(new_value + ' is not a valid ' + property + '.');
+                        }
+                        break;
+                    case 'xp':
+                    case 'max_xp':
+                        if (possible_properties[property].includes(parseInt(new_value))){
+                            message.channel.send('The ' + property + ' of ' + forced_card.name() + ' was forced to ' + new_value + '.');
+                            forced_card[property] = parseInt(new_value);
                         } else {
                             message.channel.send(new_value + ' is not a valid ' + property + '.');
                         }
@@ -684,7 +745,7 @@ client.on('message', message=>{
                 fs.writeFileSync('./softsavedgames.json',JSON.stringify(client.softsavedgames, null, 4));
 
                 // create a new surrogate game
-                mygame = new Deck.Praxisgame('none','-1',message.channel.id);
+                mygame = new Deck.Praxisgame('none','-1',message.channel.id, message.guild.id);
                 all_games[thisgameindex] = mygame;
 
                 message.channel.send('Your game and is now closed - Thanks for playing! Anyone else can now start their own game.')
@@ -718,7 +779,7 @@ client.on('message', message=>{
                                     return;
                                 } else {
                                     mygame.decks[deckid].setup_complete = true;
-                                    message.channel.send('You\'ve completed your Session Zero worldbuilding questionaire. '+
+                                    message.channel.send('You\'ve completed your Episode Zero worldbuilding questionaire. '+
                                     'Now, each player should submit their !answer to the following prompts to define their own starting Praxes!');
                                     message.channel.send(characterbuilding_prompts[0]);
                                     return;
@@ -740,7 +801,7 @@ client.on('message', message=>{
                                     return;
                                 } else {
                                     mygame.decks[deckid].setup_complete = true;
-                                    message.channel.send(message.author.username+': '+'You\'ve completed your Session Zero character questionaire. ' +
+                                    message.channel.send(message.author.username+': '+'You\'ve completed your Episode Zero character questionaire. ' +
                                     'Now, each player should discuss how their know at least one other PC. Then the GM can start the !new session!');
                                     return;
                                 }   
@@ -754,7 +815,7 @@ client.on('message', message=>{
                     }
                 }
             } else {
-                message.channel.send('This command only works in Session Zero.');
+                message.channel.send('This command only works in Episode Zero.');
                 return;
             }
 
@@ -778,6 +839,13 @@ client.on('message', message=>{
                 message.channel.send('Please format as !swap @player #value of #suit or !swap #value of #suit @player.');
                 return;
             }
+
+            let played_a_joker = args.includes('Joker'); // If "Joker is in the arguments
+            if (played_a_joker) {
+                message.channel('You cannot swap a Joker from your hand. It will leave at the start of a !new session.');
+                return;
+            }
+
             if ( (Deck.is_valid_card(args[1],args[3])) && (args[4].length == 22) ) {
                 recipient.id = args[4].substring(3,args[4].length-1);
                 recipient.deckid = Deck.find_deck_id(mygame,recipient.id);
@@ -807,7 +875,7 @@ client.on('message', message=>{
         case 'crucible':
             // Should be !crucible value of suit and needs to have a praxis. Will interact with Praxisgame.lastcheck
             if (args.length < 4) {
-                message.channel.send('Please format as !crucible #value of #suit. Crucibles must have a praxis and be in your hand.');
+                message.channel.send('Please format as !crucible #value of #suit. Crucibles must have a Praxis and be in your hand.');
                 return;
             } else {
                 if (Deck.is_valid_card(args[1],args[3])) {
@@ -843,7 +911,7 @@ client.on('message', message=>{
             
             // overwrite the existing save with a blank
             client.savedgames[message.author.id+' in '+message.channel.id] = {
-                game: new Deck.Praxisgame('none','-1',message.channel.id)
+                game: new Deck.Praxisgame('none','-1',message.channel.id, message.guild.id)
             }
             fs.writeFileSync('./savedgames.json',JSON.stringify(client.savedgames, null, 4));
             

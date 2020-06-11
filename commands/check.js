@@ -8,7 +8,7 @@ module.exports = {
 
         // Make sure there are cards to draw
         if (args.length < 2){
-            num_to_draw = 3; // default check is 3
+            num_to_draw = 4; // default check is 4
         } else {
             num_to_draw = args[1];
         }
