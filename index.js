@@ -134,7 +134,7 @@ client.on('message', message=>{
             .addField('!play #value of #suit','Plays the specified card from your hand. Add -praxis, -help, or -resist to do one of those special actions.')
             .addField('!motif #suit','Allows you to perform a motif of the specified #suit.')
             .addField('!think quickly','Allows you to think quickly, drawing a card from your deck.')
-            .addField('!reshuffle #value of #suit and #value2 of #suit2', 'Reshuffles your discard while moving two specified cards to lost')
+            .addField('!reshuffle', 'Reshuffles your discard while moving a Joker to the deck')
             .addField('!hand, !xp, !lost, !deck, !discard, or !reserve','Shows you the cards in the respective locations.')
             .addField('!check','Allows the GM to perform a skill check, flipping up cards and replacing them in the deck.')
             .addField('!force @player #value of #suit #property #argument','Forces the property of a card in @player deck to be #argument.')
@@ -430,7 +430,7 @@ client.on('message', message=>{
             let played_a_joker = args.slice(1,3).includes('Joker'); // If "Joker is in the first three arguments"
 
             if (played_a_joker) {
-                message.channel('You cannot play a Joker from your hand. It will leave at the start of a !new session.');
+                message.channel.send('You cannot play a Joker from your hand. It will leave at the start of a !new session.');
                 return;
             }
 
@@ -526,6 +526,83 @@ client.on('message', message=>{
 
             break;
 
+            case 'harm':
+                // confirm we have the card
+                // instead of this being fixed in place, we could have it look for "of", and choose args[n-1], args[n+1]? Might be weird. Maybe only if the fixed attempt doesn't work?
+                // only GM should be able to do this
+
+                recipient = {
+                    deckid: [],
+                    card: [],
+                    id: []
+                }
+                cardsinhand = [];
+
+                deckid = Deck.find_deck_id(mygame, message.author.id);
+                if (deckid == -1){
+                    message.channel.send('You do not have a deck yet, let alone a hand! Get your GM to add you as a player');
+                    return;
+                } else {
+                    cardsinhand = Deck.find_cards_in_location(mygame.decks[deckid], 'hand');
+                }
+
+                if (mygame.decks[deckid].role == 'GM'){
+                    console.log('GM used Harm');
+                } else {
+                    message.channel.send('Only GMs can use the !harm command');
+                    return;
+                }
+
+                if (args.length<5){
+                    message.channel.send('Please specify the card by number and suit (i.e. !harm @player A of Spades or !harm A of Spades @player)');
+                    return;
+                }
+                if ( (Deck.is_valid_card(args[1],args[3])) && (args[4].length == 22) ) {
+                    recipient.id = args[4].substring(3,args[4].length-1);
+                    recipient.deckid = Deck.find_deck_id(mygame,recipient.id);
+                    c_value = args[1].toLowerCase();
+                    c_suit = args[3].toLowerCase();
+                } else if ( (Deck.is_valid_card(args[2],args[4])) && (args[1].length == 22) ) {
+                    recipient.id = args[1].substring(3,args[1].length-1);
+                    recipient.deckid = Deck.find_deck_id(mygame,recipient.id);
+                    c_value = args[2].toLowerCase();
+                    c_suit = args[4].toLowerCase();
+                } else {
+                    message.channel.send('Invalid format, please check for typos or type !harm to see how to format the request.');
+                    return;
+                }
+    
+                foundcards = mygame.decks[deckid].cards.filter(card => (card.value.toLowerCase() == c_value.toLowerCase() && card.suit.toLowerCase() == c_suit.toLowerCase() 
+                && card.location.toLowerCase() == 'hand')); // this should only return one card
+        
+                if (foundcards.length != 1){
+                    message.channel.send('The card you requested wasn\'t in hand.');
+                    return;
+                }
+    
+                // Determine location
+                destination = 'deck';
+                autodraw = false;
+                foundcards[0].location = destination;
+                message.channel.send('Played the '+c_value+' of '+c_suit+' to cause harm');
+
+                // Remove cards from player's hand
+                harmedcards = mygame.decks[recipient.deckid].cards.filter(card => (card.suit.toLowerCase() == c_suit.toLowerCase() && card.location.toLowerCase() == 'hand'));
+                for (crd in harmedcards) {
+                    harmedcards[crd].location = 'lost';
+                    message.channel.send('A card was lost until the end of the session');
+                    // draw a card
+                }
+    
+                if (mygame.decks[deckid].chatchannelid != -1){
+                    Deck.update_personal_channel(client, mygame, mygame.decks[deckid]);
+                }
+                if (mygame.decks[recipient.deckid].chatchannelid != -1){
+                    Deck.update_personal_channel(client, mygame, mygame.decks[recipient.deckid]);
+                }
+    
+                break;
+
 
         case 'motif':
             if (args.length > 1){
@@ -580,33 +657,31 @@ client.on('message', message=>{
 
 
         case 'reshuffle':
-            if (args.length < 9){
+            if (args.length > 1){
                 message.channel.send('Please format your request to reshuffle like this: !reshuffle');
+                break;
             } else {
-                l_val_1 = args[2].toLowerCase();
-                l_sui_1 = args[4].toLowerCase();
-                l_val_2 = args[6].toLowerCase();
-                l_sui_2 = args[8].toLowerCase();
-                if (Deck.is_valid_card(l_val_1,l_sui_1) && Deck.is_valid_card(l_val_2,l_sui_2)){
-                    deckid = Deck.find_deck_id(mygame,message.author.id);
-                    cardids = Deck.find_cards_in_location(mygame.decks[deckid],'discard');
+                deckid = Deck.find_deck_id(mygame,message.author.id);
+                cardids = Deck.find_cards_in_location(mygame.decks[deckid],'discard');
+
+                let foundjoker = false;
+                reserveids = Deck.find_cards_in_location(mygame.decks[deckid],'reserve');
+                for (maybejoker of reserveids) {
+                    if (mygame.decks[deckid].cards[maybejoker].value == 'Joker') {
+                        foundjoker = true;
+                        mygame.decks[deckid].cards[maybejoker].location = 'deck';
+                        break;
+                    }
+                }
+
+                if (foundjoker) {
+                    for (c_el of cardids){
+                        mygame.decks[deckid].cards[c_el].location = 'deck';
+                    }
+                    message.channel.send('Reshuffled all cards from discard back in to your deck, and added a Joker.');
                 } else {
-                    message.channel.send('Card formats were not both valid. Please check your message for typos');
-                    return;
+                    message.channel.send('You have no more jokers remaining to shuffle back in and cannot reshuffle your discard. Use your remaining cards well! All cards are reset at the start of a !new session.');
                 }
-
-                cards_in_discard = mygame.decks[deckid].cards.filter(card => card.location == 'discard');
-                console.log(cards_in_discard);
-                for (c_el of cards_in_discard){
-                    if ((c_el.value.toLowerCase() == l_val_1 && c_el.suit.toLowerCase() == l_sui_1) ||
-                     (c_el.value.toLowerCase() == l_val_2 && c_el.suit.toLowerCase() == l_sui_2)){
-                        c_el.location = 'lost';
-                    } else {
-                        c_el.location = 'deck';
-                    }   
-                }
-                message.channel.send('Sent two cards from discard to loss and reshuffled the rest back in to your deck');
-
             }
             break;
 
@@ -703,20 +778,43 @@ client.on('message', message=>{
                 const new_value = args[6];
                 switch (property){
                     case 'praxis':
-                        Deck.create_praxis(forcedcard[0],message, c_value, c_suit);
+                        Deck.create_praxis(forced_card,message, c_value, c_suit);
                         break;
                     case 'location':
+                        if (possible_properties[property].includes(new_value.toLowerCase())){
+                            forced_card.location = new_value;
+                            message.channel.send('The ' + property + ' of ' + forced_card.name() + ' was forced to ' + new_value + '.');
+                        } else {
+                            message.channel.send(new_value + ' is not a valid ' + property + '.');
+                        }
+                        break;
                     case 'value':
+                        if (possible_properties[property].includes(new_value.toLowerCase())){
+                            forced_card.value = new_value;
+                            message.channel.send('The ' + property + ' of ' + forced_card.name() + ' was forced to ' + new_value + '.');
+                        } else {
+                            message.channel.send(new_value + ' is not a valid ' + property + '.');
+                        }
+                        break;
                     case 'suit':
                         if (possible_properties[property].includes(new_value.toLowerCase())){
+                            forced_card.suit = new_value;
                             message.channel.send('The ' + property + ' of ' + forced_card.name() + ' was forced to ' + new_value + '.');
                         } else {
                             message.channel.send(new_value + ' is not a valid ' + property + '.');
                         }
                         break;
                     case 'xp':
+                        if (possible_properties[property].includes(parseInt(new_value))){
+                            forced_card.xp = parseInt(new_value);
+                            message.channel.send('The ' + property + ' of ' + forced_card.name() + ' was forced to ' + new_value + '.');
+                        } else {
+                            message.channel.send(new_value + ' is not a valid ' + property + '.');
+                        }
+                        break;
                     case 'max_xp':
                         if (possible_properties[property].includes(parseInt(new_value))){
+                            forced_card.max_xp = parseInt(new_value);
                             message.channel.send('The ' + property + ' of ' + forced_card.name() + ' was forced to ' + new_value + '.');
                             forced_card[property] = parseInt(new_value);
                         } else {
@@ -846,7 +944,7 @@ client.on('message', message=>{
                 deckid: Deck.find_deck_id(mygame,message.author.id),
                 card: []
             };
-            let recipient = {
+            recipient = {
                 deckid: [],
                 card: [],
                 id: []
@@ -859,7 +957,7 @@ client.on('message', message=>{
 
             let swap_joker = args.includes('Joker'); // If "Joker is in the arguments
             if (swap_joker) {
-                message.channel('You cannot swap a Joker from your hand. It will leave at the start of a !new session.');
+                message.channel.send('You cannot swap a Joker from your hand. It will leave at the start of a !new session.');
                 return;
             }
 
