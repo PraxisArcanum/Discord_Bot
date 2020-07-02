@@ -139,7 +139,8 @@ client.on('message', message=>{
             .addField('!check','Allows the GM to perform a skill check, flipping up cards and replacing them in the deck.')
             .addField('!force @player #value of #suit #property #argument','Forces the property of a card in @player deck to be #argument.')
             .addField('!swap @player #value of #suit','Lets you take the special action to swap cards with another player.')
-            .addField('!crucible #value of #suit','Allows you to perform the special Crucible action, sacrificing a card forever.');
+            .addField('!crucible #value of #suit','Allows you to perform the special Crucible action, sacrificing a card forever.')
+            .addField('!harm @player #value of #suit', 'Plays a card from the GM hand, and forces a player to lose all cards of the matching suit from their hand');
             message.channel.send(embed);
             break;
 
@@ -333,7 +334,7 @@ client.on('message', message=>{
                 .setImage('https://img.itch.zone/aW1hZ2UvNTIxMjMyLzI3MzM5MTMucG5n/347x500/N5i3yR.png')
                 .setThumbnail('https://img.itch.zone/aW1hZ2UvNTIxMjMyLzI3MzM5MzMucG5n/347x500/YIfjwS.png')
                 .setURL('https://praxisarcanum.itch.io/praxisarcanum')
-                .addField('Praxis Arcanum Roleplaying Game','Your actions define you. Play the character you want. Available for $5.');
+                .addField('Praxis Arcanum Roleplaying Game','Your actions define you. Create your world. Available for $10.');
                 message.channel.send(embed);
                 message.delete();
             break;
@@ -590,7 +591,8 @@ client.on('message', message=>{
                 harmedcards = mygame.decks[recipient.deckid].cards.filter(card => (card.suit.toLowerCase() == c_suit.toLowerCase() && card.location.toLowerCase() == 'hand'));
                 for (crd in harmedcards) {
                     harmedcards[crd].location = 'lost';
-                    message.channel.send('A card was lost until the end of the session');
+                    message.channel.send('A card was lost until the end of the session'); // for some reason, the card did not have .name() method
+                    client.commands.get('draw').execute(message,args,mygame.decks[recipient.deckid], 1);
                     // draw a card
                 }
     
