@@ -492,9 +492,13 @@ client.on('message', message=>{
                 Deck.create_praxis(foundcards[0],message, c_value, c_suit);
             }
 
+            // did gaining xp draw you a card?
             let this_made_me_draw_a_card = false;
             if (!do_help){
-                this_made_me_draw_a_card = Deck.gain_exp(mygame.decks[deckid],c_suit);
+                if (mygame.session < 1)
+                    this_made_me_draw_a_card = false;
+                else
+                    this_made_me_draw_a_card = Deck.gain_exp(mygame.decks[deckid],c_suit);
             } else {
                 this_made_me_draw_a_card = false;
             }
