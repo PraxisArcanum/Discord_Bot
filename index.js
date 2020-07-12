@@ -237,6 +237,9 @@ client.on('message', message=>{
                     if (mygame.admin == 'none'){
                         thisgameindex = all_games.findIndex(game => game.channelID == message.channel.id);
                         mygame = new Deck.Praxisgame(message.author.id,message.id,message.channel.id, message.guild.id);
+                        if (args.filter(options => options == '-oneshot')){
+                            mygame.xpmode = 'oneshot';
+                        }
                         mygame.active = true;
                         all_games[thisgameindex] = mygame;
 
@@ -495,10 +498,10 @@ client.on('message', message=>{
             // did gaining xp draw you a card?
             let this_made_me_draw_a_card = false;
             if (!do_help){
-                if (mygame.session < 1)
-                    this_made_me_draw_a_card = false;
-                else
-                    this_made_me_draw_a_card = Deck.gain_exp(mygame.decks[deckid],c_suit);
+                if (mygame.session < 1) {
+                    this_made_me_draw_a_card = false;}
+                else {
+                    this_made_me_draw_a_card = Deck.gain_exp(mygame,mygame.decks[deckid],c_suit);}
             } else {
                 this_made_me_draw_a_card = false;
             }
@@ -647,7 +650,12 @@ client.on('message', message=>{
                         ', '+mygame.decks[deckid].cards[suitedcards[1]].value+
                         ', and the '+mygame.decks[deckid].cards[suitedcards[2]].value+' of '+m_suit);
 
-                        const this_made_me_draw_a_card = Deck.gain_exp(mygame.decks[deckid],m_suit);
+                        if (mygame.session < 1) {
+                            this_made_me_draw_a_card = false;}
+                        else {
+                            this_made_me_draw_a_card = Deck.gain_exp(mygame,mygame.decks[deckid],m_suit);
+                        }
+
                         if (this_made_me_draw_a_card){
                             message.channel.send('You earned enough experience to gain the next card in '+m_suit);
                         } else {
@@ -729,6 +737,7 @@ client.on('message', message=>{
                     for (j = 0; j < mygame.decks[k].cards.length; j++) {
                         mygame.decks[k].cards[j].__proto__ = Deck.card.prototype; //When we load in the deck, it doesn't register the cards as Deck.card objects, so this fixes it.
                     }
+                    mygame.decks[k] = Deck.deck.prototype; //When we load in the deck, it registers each deck as a Deck.deck object now.
                 }
                 all_games[thisgameindex] = mygame;
                 

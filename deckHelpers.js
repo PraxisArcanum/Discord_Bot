@@ -99,6 +99,7 @@ class Praxisgame {
         this.lastcheck = new Discord.MessageEmbed();
         this.active = false;
         this.runningmode = 'loud';
+        this.xpmode = 'regular';
     }
 }
 
@@ -158,7 +159,7 @@ function add_answer(card, message, c_value, c_suit) {
 // Increment XP in cards that are soon to be added to the player deck.
 // If a card hits max xp, move it to hand and return true to indicate a drawn card.
 // ELse, returns false.
-function gain_exp(deck, suit) {
+function gain_exp(mygame, deck, suit) {
     const xp_cards = cards_in_location(deck, "xp");
     const card = xp_cards.find(
         (card) => card.suit.toLowerCase() == suit.toLowerCase()
@@ -169,7 +170,16 @@ function gain_exp(deck, suit) {
         // It may also happen if no cards left in reserve or xp of this suit.
         return false;
     }
-    card.xp = card.xp + 1;
+    if (typeof(mygame.xpmode) !== 'undefined') {
+        if (mygame.xpmode == 'oneshot'){
+            xpincrement = 2;
+        } else if (mygame.xpmode == 'regular') {
+            xpincrement = 1;
+        }
+    } else {
+        xpincrement = 1;
+    }
+    card.xp = card.xp + xpincrement;
     if (card.xp >= card.max_xp) {
         // A card has gained enough xp to be added to the deck! Move it directly to hand.
         card.location = "hand";
