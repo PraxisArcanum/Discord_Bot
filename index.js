@@ -237,12 +237,9 @@ client.on('message', message=>{
                     if (mygame.admin == 'none'){
                         thisgameindex = all_games.findIndex(game => game.channelID == message.channel.id);
                         mygame = new Deck.Praxisgame(message.author.id,message.id,message.channel.id, message.guild.id);
-                        console.log(args.filter(options => options == '-oneshot') == '-oneshot' );
-                        console.log(args.filter(options => options == '-oneshot'));
                         if (args.filter(options => options == '-oneshot') == '-oneshot'){
                             mygame.xpmode = 'oneshot';
                             console.log('Set game to oneshot');
-                            console.log(args.filter(options => options == '-oneshot'));
                         }
                         else {
                             mygame.xpmode = 'regular';
@@ -437,6 +434,7 @@ client.on('message', message=>{
             // instead of this being fixed in place, we could have it look for "of", and choose args[n-1], args[n+1]? Might be weird. Maybe only if the fixed attempt doesn't work?
             let do_resist = args.includes('-resist');
             let do_help = args.includes('-help');
+            let do_intended = args.includes('-as');
             let do_praxis = args.includes('-praxis') || args.includes('praxis') ;
             let played_a_joker = args.slice(1,3).includes('Joker'); // If "Joker is in the first three arguments"
 
@@ -504,6 +502,10 @@ client.on('message', message=>{
 
             // did gaining xp draw you a card?
             let this_made_me_draw_a_card = false;
+            if (do_intended){
+                index_of_intended_suit = args.findIndex(element => element == '-as') + 1;
+                c_suit = args[index_of_intended_suit]; // Careful, this replaces the suit in-place.
+            }
             if (!do_help){
                 if (mygame.session < 1) {
                     this_made_me_draw_a_card = false;}
@@ -528,10 +530,18 @@ client.on('message', message=>{
 
                 message.channel.send(mygame.lastcheck);
             } else {
-                mygame.lastcheck = new Discord.MessageEmbed()
-                .addField(message.author.username + '\'s Played Card',foundcards[0].name(),true)
-                .addField('Praxis',foundcards[0].praxis,true)
-                .addField('\u200B','\u200B',true);
+                if (do_intended){
+                    mygame.lastcheck = new Discord.MessageEmbed()
+                    .addField(message.author.username + '\'s Played Card','0 of '+ c_suit,true)
+                    .addField('Praxis',foundcards[0].name()+' played for 0 power',true)
+                    .addField('\u200B','\u200B',true);
+                }
+                else {
+                    mygame.lastcheck = new Discord.MessageEmbed()
+                    .addField(message.author.username + '\'s Played Card',foundcards[0].name(),true)
+                    .addField('Praxis',foundcards[0].praxis,true)
+                    .addField('\u200B','\u200B',true);
+                }
 
                 message.channel.send(mygame.lastcheck);
             }
