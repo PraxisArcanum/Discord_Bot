@@ -115,7 +115,7 @@ client.on('message', message=>{
             .setTitle('Praxis Arcanum General Discord Bot Commands')
             .setColor(0xF1C40F)
             .addField('!rules or !demo','Shows you a link to an audio file with a brief overview of the game rules')
-            .addField('!new game','Starts a new game with you as the GM. Only one open game can exist per channel. Creates a default GM deck for you too.')
+            .addField('!new game','Starts a new game with you as the GM. Only one open game can exist per channel. Creates a default GM deck for you too. Type "-oneshot" in this command to double xp gain.')
             .addField('!close game','Saves and closes your open game of Praxis, allowing someone else to start a !new game.')
             .addField('!add @player','Adds a user to the open game. Anyone can add anyone as a player. Creates a default player deck for them too.')
             .addField('!save game','Saves your open game. Only one game per GM per channel may be saved.')
@@ -131,7 +131,7 @@ client.on('message', message=>{
             .setTitle('Praxis Arcanum In-game Discord Bot Commands')
             .setColor(0xFF38CC)
             .addField('!draw #','Draws a number of cards from your deck into your hand. If # is not specified, draws 1 card.')
-            .addField('!play #value of #suit','Plays the specified card from your hand. Add -praxis, -help, or -resist to do one of those special actions.')
+            .addField('!play #value of #suit','Plays the specified card from your hand. Add -praxis, -help, or -resist to do one of those special actions. Add "-as #suit" to play the a card with 0 power in a different suit')
             .addField('!motif #suit','Allows you to perform a motif of the specified #suit.')
             .addField('!think quickly','Allows you to think quickly, drawing a card from your deck.')
             .addField('!reshuffle', 'Reshuffles your discard while moving a Joker to the deck')
@@ -443,18 +443,77 @@ client.on('message', message=>{
                 return;
             }
 
-            if (args.length<4){
-                message.channel.send('Please specify the card by number and suit (i.e. !play A of Spades)');
+            let card_unknown = true;
+            if (args.length<2){
+                message.channel.send('Please specify the card by number and suit (i.e. !play A of Spades or !play AS)');
                 return;
             }
-            c_value = args[1];
-            c_suit = args[3];
+            if (args[1].length == 2){
+                switch (args[1][0]) {
+                    case 'A': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+                        c_value =  args[1][0];
+                        break;
+                    message.channel.send('Please specify the card by number and suit (i.e. !play A of Spades or !play AS)');
+                        return;
+                }
+                switch (args[1][1]) {
+                    case 'S': case's':
+                        c_suit = 'Spades';
+                        break;
+                    case 'D': case'd':
+                        c_suit = 'Diamonds';
+                        console.log('Yup');
+                        break;
+                    case 'H': case 'h':
+                        c_suit = 'Hearts';
+                        break;
+                    case 'C': case 'c':
+                        c_suit = 'Clubs';
+                        break;
+                    message.channel.send('Please specify the card by number and suit (i.e. !play A of Spades or !play AS)');
+                    return;
+                }
+                card_unknown = false;                   
+            }
+
+            if (args.length<4 && card_unknown){
+                message.channel.send('Please specify the card by number and suit (i.e. !play A of Spades or !play AS)');
+                return;
+            }
+            if (card_unknown){
+                c_value = args[1];
+                c_suit = args[3];
+            }
 
             cardsinhand = [];
             if (!Deck.is_valid_card(c_value,c_suit)){
                 message.channel.send('This is not a valid card. Please check your message for typos');
                 return;
             }
+            if (do_intended){
+                index_of_intended_suit = args.findIndex(element => element == '-as') + 1;
+                c_suit_intended = args[index_of_intended_suit]; // Careful, this replaces the suit in-place.
+                switch (c_suit_intended[0]) {
+                    case 'S': case's':
+                        c_suit_intended = 'Spades';
+                        break;
+                    case 'D': case'd':
+                        c_suit_intended = 'Diamonds';
+                        console.log('Yup');
+                        break;
+                    case 'H': case 'h':
+                        c_suit_intended = 'Hearts';
+                        break;
+                    case 'C': case 'c':
+                        c_suit_intended = 'Clubs';
+                        break;
+                }
+                if (!Deck.is_valid_card(c_value,c_suit)){
+                    message.channel.send('This is not a valid card. Please check your message for typos');
+                    return;
+                }
+            }
+
             deckid = Deck.find_deck_id(mygame, message.author.id);
             if (deckid == -1){
                 message.channel.send('You do not have a deck yet, let alone a hand! Get your GM to add you as a player');
@@ -503,8 +562,7 @@ client.on('message', message=>{
             // did gaining xp draw you a card?
             let this_made_me_draw_a_card = false;
             if (do_intended){
-                index_of_intended_suit = args.findIndex(element => element == '-as') + 1;
-                c_suit = args[index_of_intended_suit]; // Careful, this replaces the suit in-place.
+                c_suit = c_suit_intended;
             }
             if (!do_help){
                 if (mygame.session < 1) {
