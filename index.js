@@ -1110,6 +1110,18 @@ client.on('message', message=>{
             }
             break;
 
+        case 'x':
+            //console.log(client.users.cache);
+            //console.log(client.users.cache.keyArray);
+            message.delete();
+            if (client.users.cache.get(String(mygame.admin)) == undefined){
+                message.channel.send('There is no active game in this channel');
+                return;
+            }
+            client.users.cache.get(String(mygame.admin)).send('A player in your game has asked to X-card the current content!');
+            return;
+
+
         case 'migrate':
             // move a game from one channel to another in the same server
             if (args.length < 2) {
