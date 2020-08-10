@@ -145,7 +145,7 @@ function create_praxis(card, message, c_value, c_suit) {
 
 function add_answer(card, message, c_value, c_suit) {
     let answer_msg = message.content.substring(
-        message.content.search("answer") + 7,
+        message.content.search(" ") + 1, //This should be the first space after !answer or !Answer
         message.content.length
     );
     if (answer_msg == '') {
@@ -173,11 +173,14 @@ function gain_exp(mygame, deck, suit) {
     if (typeof(mygame.xpmode) !== 'undefined') {
         if (mygame.xpmode == 'oneshot'){
             xpincrement = 2;
+            console.log('2');
         } else if (mygame.xpmode == 'regular') {
             xpincrement = 1;
+            console.log('1');
         }
     } else {
         xpincrement = 1;
+        console.log('1, default')
     }
     card.xp = card.xp + xpincrement;
     if (card.xp >= card.max_xp) {

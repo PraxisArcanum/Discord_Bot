@@ -223,7 +223,7 @@ client.on('message', message=>{
 
         case 'ping':
             client.commands.get('ping').execute(message, args);
-            console.log();
+            console.log(mygame.xpmode);
             break;
 
 
@@ -237,8 +237,15 @@ client.on('message', message=>{
                     if (mygame.admin == 'none'){
                         thisgameindex = all_games.findIndex(game => game.channelID == message.channel.id);
                         mygame = new Deck.Praxisgame(message.author.id,message.id,message.channel.id, message.guild.id);
-                        if (args.filter(options => options == '-oneshot')){
+                        console.log(args.filter(options => options == '-oneshot') == '-oneshot' );
+                        console.log(args.filter(options => options == '-oneshot'));
+                        if (args.filter(options => options == '-oneshot') == '-oneshot'){
                             mygame.xpmode = 'oneshot';
+                            console.log('Set game to oneshot');
+                            console.log(args.filter(options => options == '-oneshot'));
+                        }
+                        else {
+                            mygame.xpmode = 'regular';
                         }
                         mygame.active = true;
                         all_games[thisgameindex] = mygame;
@@ -650,13 +657,14 @@ client.on('message', message=>{
                         ', '+mygame.decks[deckid].cards[suitedcards[1]].value+
                         ', and the '+mygame.decks[deckid].cards[suitedcards[2]].value+' of '+m_suit);
 
+                        let draw_a_card = false;
                         if (mygame.session < 1) {
-                            this_made_me_draw_a_card = false;}
+                            draw_a_card = false;}
                         else {
-                            this_made_me_draw_a_card = Deck.gain_exp(mygame,mygame.decks[deckid],m_suit);
+                            draw_a_card = Deck.gain_exp(mygame,mygame.decks[deckid],m_suit);
                         }
 
-                        if (this_made_me_draw_a_card){
+                        if (draw_a_card){
                             message.channel.send('You earned enough experience to gain the next card in '+m_suit);
                         } else {
                             client.commands.get('draw').execute(message,args,mygame.decks[deckid]);
@@ -664,6 +672,7 @@ client.on('message', message=>{
                         client.commands.get('draw').execute(message,args,mygame.decks[deckid]);
                         client.commands.get('draw').execute(message,args,mygame.decks[deckid]);
                         console.log('drew 3 cards');
+                        return;
                     }
                 }
             }
@@ -883,6 +892,7 @@ client.on('message', message=>{
             break;
 
 
+        case 'Answer':
         case 'answer':
             if (mygame.session == 0){
                 deckid = Deck.find_deck_id(mygame,message.author.id);
