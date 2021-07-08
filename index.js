@@ -69,6 +69,9 @@ client.on('ready', () =>{
     var all_keys = Object.keys(client.softsavedgames);
     for (i = 0; i < all_keys.length; i++) { //Iterates over all games
         mygame = client.softsavedgames[all_keys[i]].game;
+        mygame.__proto__ = Deck.Praxisgame.prototype;
+        mygame.decks.__proto__ = Deck.deck.prototype;
+        mygame.lastcheck.__proto__ = Discord.MessageEmbed.prototype;
         for (k = 0; k < mygame.decks.length; k++) { //Iterates over all decks
             mygame.decks[k].__proto__ = Deck.deck.prototype;
             for (j = 0; j < mygame.decks[k].cards.length; j++) { //Iterates over all cards
@@ -806,16 +809,20 @@ client.on('message', message=>{
                 }
 
                 if (args.filter(cmd => cmd == '-quick').length < 1) {
+                    //Goes here when we don't specify quickload
                     mygame = client.savedgames [message.author.id+' in '+message.channel.id].game;
+                    mygame.__proto__ = Deck.Praxisgame.prototype;
                 } else {
+                    //Goes here when we do specify quickload
                     mygame = client.softsavedgames [message.author.id+' in '+message.channel.id].game;
+                    mygame.__proto__ = Deck.Praxisgame.prototype;
                 }
                 mygame.active = true;
                 for (k = 0; k < mygame.decks.length; k++) {
                     for (j = 0; j < mygame.decks[k].cards.length; j++) {
                         mygame.decks[k].cards[j].__proto__ = Deck.card.prototype; //When we load in the deck, it doesn't register the cards as Deck.card objects, so this fixes it.
                     }
-                    mygame.decks[k] = Deck.deck.prototype; //When we load in the deck, it registers each deck as a Deck.deck object now.
+                    mygame.decks[k].__proto__ = Deck.deck.prototype; //When we load in the deck, it registers each deck as a Deck.deck object now.
                 }
                 all_games[thisgameindex] = mygame;
                 

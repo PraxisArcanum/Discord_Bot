@@ -1,378 +1,4 @@
 {
-    "128971529693298688 in 692766603179196436": {
-        "game": {
-            "ID": "742251094696132610",
-            "admin": "128971529693298688",
-            "session": -1,
-            "guildID": "692555543000121355",
-            "decks": [
-                {
-                    "user": "128971529693298688",
-                    "role": "GM",
-                    "chatchannelid": "742251095459364876",
-                    "chatchannelname": "mark-hehim",
-                    "setup_complete": false,
-                    "cards": [
-                        {
-                            "suit": "Clubs",
-                            "value": "A",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 1,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Hearts",
-                            "value": "A",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 1,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Diamonds",
-                            "value": "A",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 1,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Spades",
-                            "value": "A",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 1,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Clubs",
-                            "value": "2",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 2,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Hearts",
-                            "value": "2",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 2,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Diamonds",
-                            "value": "2",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 2,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Spades",
-                            "value": "2",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 2,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Clubs",
-                            "value": "3",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 3,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Hearts",
-                            "value": "3",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 3,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Diamonds",
-                            "value": "3",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 3,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Spades",
-                            "value": "3",
-                            "praxis": "toast",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 3,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Clubs",
-                            "value": "4",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 4,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Hearts",
-                            "value": "4",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 4,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Diamonds",
-                            "value": "4",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 4,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Spades",
-                            "value": "4",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 4,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Clubs",
-                            "value": "5",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 5,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Hearts",
-                            "value": "5",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 5,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Diamonds",
-                            "value": "5",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 5,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Spades",
-                            "value": "5",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 5,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Clubs",
-                            "value": "6",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 6,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Hearts",
-                            "value": "6",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 6,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Diamonds",
-                            "value": "6",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 6,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Spades",
-                            "value": "6",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 6,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Clubs",
-                            "value": "7",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 7,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Hearts",
-                            "value": "7",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 7,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Diamonds",
-                            "value": "7",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 7,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Spades",
-                            "value": "7",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 7,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Clubs",
-                            "value": "8",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 8,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Hearts",
-                            "value": "8",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 8,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Diamonds",
-                            "value": "8",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 8,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Spades",
-                            "value": "8",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 8,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Clubs",
-                            "value": "9",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 9,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Hearts",
-                            "value": "9",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 9,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Diamonds",
-                            "value": "9",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 9,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Spades",
-                            "value": "9",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 9,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Red",
-                            "value": "Joker",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 10000,
-                            "owner": "128971529693298688"
-                        },
-                        {
-                            "suit": "Black",
-                            "value": "Joker",
-                            "praxis": "blank",
-                            "location": "reserve",
-                            "xp": 0,
-                            "max_xp": 10000,
-                            "owner": "128971529693298688"
-                        }
-                    ]
-                }
-            ],
-            "channelID": "692766603179196436",
-            "lastcheck": {
-                "type": "rich",
-                "timestamp": null,
-                "fields": [],
-                "thumbnail": null,
-                "image": null,
-                "author": null,
-                "footer": null
-            },
-            "active": true,
-            "runningmode": "loud",
-            "xpmode": "regular"
-        }
-    },
     "128971529693298688 in 692555543000121358": {
         "game": {
             "ID": "721053289902243923",
@@ -13772,6 +13398,380 @@
                         "inline": true
                     }
                 ],
+                "thumbnail": null,
+                "image": null,
+                "author": null,
+                "footer": null
+            },
+            "active": true,
+            "runningmode": "loud",
+            "xpmode": "regular"
+        }
+    },
+    "128971529693298688 in 692766603179196436": {
+        "game": {
+            "ID": "742250369874395276",
+            "admin": "128971529693298688",
+            "session": -1,
+            "guildID": "692555543000121355",
+            "decks": [
+                {
+                    "user": "128971529693298688",
+                    "role": "GM",
+                    "chatchannelid": "742250370318991410",
+                    "chatchannelname": "mark-hehim",
+                    "setup_complete": false,
+                    "cards": [
+                        {
+                            "suit": "Clubs",
+                            "value": "A",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 1,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Hearts",
+                            "value": "A",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 1,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Diamonds",
+                            "value": "A",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 1,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Spades",
+                            "value": "A",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 1,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Clubs",
+                            "value": "2",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 2,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Hearts",
+                            "value": "2",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 2,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Diamonds",
+                            "value": "2",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 2,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Spades",
+                            "value": "2",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 2,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Clubs",
+                            "value": "3",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 3,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Hearts",
+                            "value": "3",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 3,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Diamonds",
+                            "value": "3",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 3,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Spades",
+                            "value": "3",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 3,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Clubs",
+                            "value": "4",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 4,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Hearts",
+                            "value": "4",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 4,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Diamonds",
+                            "value": "4",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 4,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Spades",
+                            "value": "4",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 4,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Clubs",
+                            "value": "5",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 5,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Hearts",
+                            "value": "5",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 5,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Diamonds",
+                            "value": "5",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 5,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Spades",
+                            "value": "5",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 5,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Clubs",
+                            "value": "6",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 6,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Hearts",
+                            "value": "6",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 6,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Diamonds",
+                            "value": "6",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 6,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Spades",
+                            "value": "6",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 6,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Clubs",
+                            "value": "7",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 7,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Hearts",
+                            "value": "7",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 7,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Diamonds",
+                            "value": "7",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 7,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Spades",
+                            "value": "7",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 7,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Clubs",
+                            "value": "8",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 8,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Hearts",
+                            "value": "8",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 8,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Diamonds",
+                            "value": "8",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 8,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Spades",
+                            "value": "8",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 8,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Clubs",
+                            "value": "9",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 9,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Hearts",
+                            "value": "9",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 9,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Diamonds",
+                            "value": "9",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 9,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Spades",
+                            "value": "9",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 9,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Red",
+                            "value": "Joker",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 10000,
+                            "owner": "128971529693298688"
+                        },
+                        {
+                            "suit": "Black",
+                            "value": "Joker",
+                            "praxis": "blank",
+                            "location": "reserve",
+                            "xp": 0,
+                            "max_xp": 10000,
+                            "owner": "128971529693298688"
+                        }
+                    ]
+                }
+            ],
+            "channelID": "692766603179196436",
+            "lastcheck": {
+                "type": "rich",
+                "timestamp": null,
+                "fields": [],
                 "thumbnail": null,
                 "image": null,
                 "author": null,
