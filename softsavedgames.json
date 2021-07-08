@@ -1984,7 +1984,7 @@
                         {
                             "suit": "Clubs",
                             "value": "3",
-                            "praxis": " <@!352987772983967745> 3 of Clubs Praxis Find a safe place to hide.",
+                            "praxis": "The heads of Dawnwalkers and the Secret Police, each trying to maintain power over the city",
                             "location": "deck",
                             "xp": 0,
                             "max_xp": 3,
@@ -2020,7 +2020,7 @@
                         {
                             "suit": "Clubs",
                             "value": "4",
-                            "praxis": "blank",
+                            "praxis": "Find a safe place to hide.",
                             "location": "deck",
                             "xp": 0,
                             "max_xp": 4,
@@ -2263,97 +2263,97 @@
                         {
                             "suit": "Clubs",
                             "value": "A",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 1,
-                            "owner": "165486703782395915"
-                        },
-                        {
-                            "suit": "Hearts",
-                            "value": "A",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 1,
-                            "owner": "165486703782395915"
-                        },
-                        {
-                            "suit": "Diamonds",
-                            "value": "A",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 1,
-                            "owner": "165486703782395915"
-                        },
-                        {
-                            "suit": "Spades",
-                            "value": "A",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 1,
-                            "owner": "165486703782395915"
-                        },
-                        {
-                            "suit": "Clubs",
-                            "value": "2",
-                            "praxis": "blank",
-                            "location": "hand",
-                            "xp": 0,
-                            "max_xp": 2,
-                            "owner": "165486703782395915"
-                        },
-                        {
-                            "suit": "Hearts",
-                            "value": "2",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 2,
-                            "owner": "165486703782395915"
-                        },
-                        {
-                            "suit": "Diamonds",
-                            "value": "2",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 2,
-                            "owner": "165486703782395915"
-                        },
-                        {
-                            "suit": "Spades",
-                            "value": "2",
-                            "praxis": "blank",
-                            "location": "deck",
-                            "xp": 0,
-                            "max_xp": 2,
-                            "owner": "165486703782395915"
-                        },
-                        {
-                            "suit": "Clubs",
-                            "value": "3",
                             "praxis": "A black skeleton key, with sharpened edges. It was originally the key to their prison, they had witnessed it in use frequently by their captors.",
-                            "location": "hand",
+                            "location": "deck",
                             "xp": 0,
-                            "max_xp": 3,
+                            "max_xp": 1,
                             "owner": "165486703782395915"
                         },
                         {
                             "suit": "Hearts",
-                            "value": "3",
+                            "value": "A",
                             "praxis": "Pain. They lived in a life of hellish torment beforehand, with bloodletting almost every day that left them weak and tired. If they are captured again...Their fate could be rather painful.",
                             "location": "deck",
                             "xp": 0,
+                            "max_xp": 1,
+                            "owner": "165486703782395915"
+                        },
+                        {
+                            "suit": "Diamonds",
+                            "value": "A",
+                            "praxis": "Raised above the belowgrounds from the depths of the Dawnwalkers' den. They were used essentially as livestock for their blood and trapped for a majority of their childhood, but had escaped just as those strings of thefts began.",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 1,
+                            "owner": "165486703782395915"
+                        },
+                        {
+                            "suit": "Spades",
+                            "value": "A",
+                            "praxis": "As a member of the beastfolk, there is danger in existing. The sun burns and saps the strength of them, leaving them useless and easily returned to captivity. They utilize their unique shapeshifting abilities to avoid the suspicion of members of the Dawnwalkers.",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 1,
+                            "owner": "165486703782395915"
+                        },
+                        {
+                            "suit": "Clubs",
+                            "value": "2",
+                            "praxis": "blank",
+                            "location": "hand",
+                            "xp": 0,
+                            "max_xp": 2,
+                            "owner": "165486703782395915"
+                        },
+                        {
+                            "suit": "Hearts",
+                            "value": "2",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 2,
+                            "owner": "165486703782395915"
+                        },
+                        {
+                            "suit": "Diamonds",
+                            "value": "2",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 2,
+                            "owner": "165486703782395915"
+                        },
+                        {
+                            "suit": "Spades",
+                            "value": "2",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
+                            "max_xp": 2,
+                            "owner": "165486703782395915"
+                        },
+                        {
+                            "suit": "Clubs",
+                            "value": "3",
+                            "praxis": "blank",
+                            "location": "hand",
+                            "xp": 0,
+                            "max_xp": 3,
+                            "owner": "165486703782395915"
+                        },
+                        {
+                            "suit": "Hearts",
+                            "value": "3",
+                            "praxis": "blank",
+                            "location": "deck",
+                            "xp": 0,
                             "max_xp": 3,
                             "owner": "165486703782395915"
                         },
                         {
                             "suit": "Diamonds",
                             "value": "3",
-                            "praxis": "Raised above the belowgrounds from the depths of the Dawnwalkers' den. They were used essentially as livestock for their blood and trapped for a majority of their childhood, but had escaped just as those strings of thefts began.",
+                            "praxis": "blank",
                             "location": "deck",
                             "xp": 0,
                             "max_xp": 3,
@@ -2362,7 +2362,7 @@
                         {
                             "suit": "Spades",
                             "value": "3",
-                            "praxis": "As a member of the beastfolk, there is danger in existing. The sun burns and saps the strength of them, leaving them useless and easily returned to captivity. They utilize their unique shapeshifting abilities to avoid the suspicion of members of the Dawnwalkers.",
+                            "praxis": "blank",
                             "location": "hand",
                             "xp": 0,
                             "max_xp": 3,
@@ -2614,7 +2614,7 @@
                         {
                             "suit": "Clubs",
                             "value": "A",
-                            "praxis": "blank",
+                            "praxis": "an umbrella with an extremely sharpened end. It serves as both a shield from the sun and a weapon in an emergency. They learned to use it after one foolish childhood escapade out of the underground",
                             "location": "hand",
                             "xp": 0,
                             "max_xp": 1,
@@ -2623,7 +2623,7 @@
                         {
                             "suit": "Hearts",
                             "value": "A",
-                            "praxis": "blank",
+                            "praxis": "they want to be free, without fear or restraint. They will have to say goodbye to their family if they go through with it",
                             "location": "hand",
                             "xp": 0,
                             "max_xp": 1,
@@ -2632,7 +2632,7 @@
                         {
                             "suit": "Diamonds",
                             "value": "A",
-                            "praxis": "blank",
+                            "praxis": "from below the city, they want to leave because they fear both sides of the conflict. They are half human and half beast. They are unable to shapeshift and instead take on one form with features from both sides of their family. They are still allergic to sunlight and while slightly less intoxicating than one of the beast folk it is still just as good making them an easy target to spot if they leave the underground.",
                             "location": "deck",
                             "xp": 0,
                             "max_xp": 1,
@@ -2641,7 +2641,7 @@
                         {
                             "suit": "Spades",
                             "value": "A",
-                            "praxis": "blank",
+                            "praxis": "wielding the weird puts them in immediate danger without any benefits for blending in. It more so puts them at a disadvantage but they do have heightened senses",
                             "location": "hand",
                             "xp": 0,
                             "max_xp": 1,
@@ -2686,7 +2686,7 @@
                         {
                             "suit": "Clubs",
                             "value": "3",
-                            "praxis": "an umbrella with an extremely sharpened end. It serves as both a shield from the sun and a weapon in an emergency. They learned to use it after one foolish childhood escapade out of the underground",
+                            "praxis": "blank",
                             "location": "discard",
                             "xp": 0,
                             "max_xp": 3,
@@ -2695,7 +2695,7 @@
                         {
                             "suit": "Hearts",
                             "value": "3",
-                            "praxis": "they want to be free, without fear or restraint. They will have to say goodbye to their family if they go through with it",
+                            "praxis": "blank",
                             "location": "deck",
                             "xp": 0,
                             "max_xp": 3,
@@ -2704,7 +2704,7 @@
                         {
                             "suit": "Diamonds",
                             "value": "3",
-                            "praxis": "from below the city, they want to leave because they fear both sides of the conflict. They are half human and half beast. They are unable to shapeshift and instead take on one form with features from both sides of their family. They are still allergic to sunlight and while slightly less intoxicating than one of the beast folk it is still just as good making them an easy target to spot if they leave the underground.",
+                            "praxis": "blank",
                             "location": "deck",
                             "xp": 0,
                             "max_xp": 3,
@@ -2713,7 +2713,7 @@
                         {
                             "suit": "Spades",
                             "value": "3",
-                            "praxis": "wielding the weird puts them in immediate danger without any benefits for blending in. It more so puts them at a disadvantage but they do have heightened senses",
+                            "praxis": "blank",
                             "location": "deck",
                             "xp": 0,
                             "max_xp": 3,
