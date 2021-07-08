@@ -144,7 +144,8 @@ client.on('message', message=>{
             .addField('!force @player #value of #suit #property #argument','Forces the property of a card in @player deck to be #argument.')
             .addField('!swap @player #value of #suit','Lets you take the special action to swap cards with another player.')
             .addField('!crucible #value of #suit','Allows you to perform the special Crucible action, sacrificing a card forever.')
-            .addField('!harm @player #value of #suit', 'Plays a card from the GM hand, and forces a player to lose all cards of the matching suit from their hand');
+            .addField('!harm @player #value of #suit', 'Plays a card from the GM hand, and forces a player to lose all cards of the matching suit from their hand.')
+            .addField('!undo, undoes the last draw, play, or other major move.');
             message.channel.send(embed);
             break;
 
