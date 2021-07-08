@@ -115,7 +115,7 @@
                         {
                             "suit": "Spades",
                             "value": "3",
-                            "praxis": "blank",
+                            "praxis": "toast",
                             "location": "deck",
                             "xp": 0,
                             "max_xp": 3,
