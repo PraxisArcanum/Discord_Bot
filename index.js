@@ -600,8 +600,8 @@ client.on('message', message=>{
             } else {
                 if (do_intended){
                     mygame.lastcheck = new Discord.MessageEmbed()
-                    .addField(message.author.username + '\'s Played Card','0 of '+ c_suit,true)
-                    .addField('Praxis',foundcards[0].name()+' played for 0 power',true)
+                    .addField(message.author.username + '\'s Played Card','1 of '+ c_suit,true)
+                    .addField('Praxis',foundcards[0].name()+' played for 1 power',true)
                     .addField('\u200B','\u200B',true);
                 }
                 else {
