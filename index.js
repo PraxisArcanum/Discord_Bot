@@ -701,7 +701,11 @@ client.on('message', message=>{
 
         case 'motif':
             Deck.softsave(client,mygame);
-
+            if (message.author.id == mygame.admin) {
+                crd_destination = 'deck';
+            } else {
+                crd_destination = 'discard';
+            }
             if (args.length > 1){
                 m_suit = args[1]; 
             } else {
@@ -731,9 +735,9 @@ client.on('message', message=>{
                     suitedcards.push(cardsinhand[j]);
 
                     if (suitedcards.length == 3){
-                        mygame.decks[deckid].cards[suitedcards[0]].location = 'discard';
-                        mygame.decks[deckid].cards[suitedcards[1]].location = 'discard';
-                        mygame.decks[deckid].cards[suitedcards[2]].location = 'discard';
+                        mygame.decks[deckid].cards[suitedcards[0]].location = crd_destination;
+                        mygame.decks[deckid].cards[suitedcards[1]].location = crd_destination;
+                        mygame.decks[deckid].cards[suitedcards[2]].location = crd_destination;
                         message.channel.send('Played the '+mygame.decks[deckid].cards[suitedcards[0]].value+
                         ', '+mygame.decks[deckid].cards[suitedcards[1]].value+
                         ', and the '+mygame.decks[deckid].cards[suitedcards[2]].value+' of '+m_suit);

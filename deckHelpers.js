@@ -280,7 +280,7 @@ function possible_locations() {
 }
 
 function possible_values() {
-    return ['a','2','3','4','5','6','7','8','9','Joker'];
+    return ['a','2','3','4','5','6','7','8','9','joker'];
 }
 
 function possible_suits() {
