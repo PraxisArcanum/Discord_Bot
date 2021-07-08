@@ -70,6 +70,7 @@ client.on('ready', () =>{
     for (i = 0; i < all_keys.length; i++) { //Iterates over all games
         mygame = client.softsavedgames[all_keys[i]].game;
         for (k = 0; k < mygame.decks.length; k++) { //Iterates over all decks
+            mygame.decks[k].__proto__ = Deck.deck.prototype;
             for (j = 0; j < mygame.decks[k].cards.length; j++) { //Iterates over all cards
                 mygame.decks[k].cards[j].__proto__ = Deck.card.prototype; //When we load in the deck, it doesn't register the cards as Deck.card objects, so this fixes it.
             }
