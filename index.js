@@ -223,7 +223,7 @@ client.on('message', message=>{
                 draw_n = 1;
             }
 
-            client.commands.get('draw').execute(message,args,mygame.decks[deckid], draw_n);
+            client.commands.get('draw').execute(message,args,mygame.decks[deckid], draw_n,mygame.runningmode);
             if (mygame.decks[deckid].chatchannelid != -1){
                 Deck.update_personal_channel(client, mygame, mygame.decks[deckid]);
             }
@@ -386,13 +386,13 @@ client.on('message', message=>{
             break;
 
         case 'run': //changes the messages desplayed in the channel
-            let possible_running_modes = ['loud','quiet'];
+            possible_running_modes = ['loud','quiet'];
             if (message.author.id == mygame.admin) {
                 if (args.length<2) {
                     message.channel.send('Specify the running mode of bot feedback, either !run loud or !run quiet');
                 } else {
-                    if (possible_running_modes.includes(args[2])) {
-                        mygame.runningmode = args[2];
+                    if (possible_running_modes.includes(args[1])) {
+                        mygame.runningmode = args[1];
                     } else {
                         message.channel.send('Specify the running mode as either !run loud or !run quiet');
                     }
@@ -586,7 +586,7 @@ client.on('message', message=>{
             if (this_made_me_draw_a_card){
                 message.channel.send('You earned enough experience to gain the next card in '+c_suit);
             } else if (autodraw) {
-                client.commands.get('draw').execute(message,args,mygame.decks[deckid],1);
+                client.commands.get('draw').execute(message,args,mygame.decks[deckid],1,mygame.runningmode);
                 console.log('drew a card');
             }
 
@@ -685,7 +685,7 @@ client.on('message', message=>{
                 for (crd in harmedcards) {
                     harmedcards[crd].location = 'lost';
                     message.channel.send('A card was lost until the end of the session'); // for some reason, the card did not have .name() method
-                    client.commands.get('draw').execute(message,args,mygame.decks[recipient.deckid], 1);
+                    client.commands.get('draw').execute(message,args,mygame.decks[recipient.deckid], 1,mygame.runningmode);
                     // draw a card
                 }
     
@@ -752,10 +752,10 @@ client.on('message', message=>{
                         if (draw_a_card){
                             message.channel.send('You earned enough experience to gain the next card in '+m_suit);
                         } else {
-                            client.commands.get('draw').execute(message,args,mygame.decks[deckid]);
+                            client.commands.get('draw').execute(message,args,mygame.decks[deckid],1,mygame.runningmode);
                         }
-                        client.commands.get('draw').execute(message,args,mygame.decks[deckid]);
-                        client.commands.get('draw').execute(message,args,mygame.decks[deckid]);
+                        client.commands.get('draw').execute(message,args,mygame.decks[deckid],1,mygame.runningmode);
+                        client.commands.get('draw').execute(message,args,mygame.decks[deckid],1,mygame.runningmode);
                         console.log('drew 3 cards');
                         return;
                     }

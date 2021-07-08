@@ -4,7 +4,7 @@ const Deck = require('../deckHelpers.js');
 module.exports = {
     name: 'draw',
     description: 'Draws a card from a deck',
-    execute(message, args, deck, draw_n){
+    execute(message, args, deck, draw_n, runningmode){
         // Make sure there are cards to draw
         let drawn_cards = [];
         try {
@@ -17,7 +17,9 @@ module.exports = {
             // Set the new location of that card to be in hand
             card.location = 'hand';
             console.log('Drew the ' + card.name() + ' from deck to hand.');
-            message.channel.send('Drew the ' + card.name());
+            if (runningmode == 'loud') {
+                message.channel.send('Drew the ' + card.name());
+            }
         }
     }
 }
