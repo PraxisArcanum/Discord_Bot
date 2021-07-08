@@ -3,6 +3,7 @@
  */
 
 const Discord = require("discord.js");
+const fs = require('fs');
 
 // Define essential classes: Cards, Decks, Game
 class card {
@@ -364,6 +365,14 @@ function clean_swap(mygame, sender_deckid, recipient_deckid, sw_card) {
     return;
 } // the played card was previously swapped
 
+
+function softsave(client,mygame) {
+    client.softsavedgames[mygame.admin+' in '+mygame.channelID] = {
+        game: mygame
+    }
+    console.log('softsave');
+    fs.writeFileSync('./softsavedgames.json',JSON.stringify(client.softsavedgames, null, 4));
+}
 module.exports = {
     card,
     deck,
@@ -383,5 +392,6 @@ module.exports = {
     possible_suits,
     possible_values,
     show_cards_in_zone,
-    update_personal_channel
+    update_personal_channel,
+    softsave
 };

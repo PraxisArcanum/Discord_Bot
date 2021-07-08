@@ -1,7 +1,7 @@
 {
     "128971529693298688 in 692766603179196436": {
         "game": {
-            "ID": "742250369874395276",
+            "ID": "862566891745574923",
             "admin": "128971529693298688",
             "session": -1,
             "guildID": "692555543000121355",
@@ -9,7 +9,7 @@
                 {
                     "user": "128971529693298688",
                     "role": "GM",
-                    "chatchannelid": "742250370318991410",
+                    "chatchannelid": "862566892061458463",
                     "chatchannelname": "mark-hehim",
                     "setup_complete": false,
                     "cards": [
@@ -35,7 +35,7 @@
                             "suit": "Diamonds",
                             "value": "A",
                             "praxis": "blank",
-                            "location": "deck",
+                            "location": "hand",
                             "xp": 0,
                             "max_xp": 1,
                             "owner": "128971529693298688"
@@ -53,7 +53,7 @@
                             "suit": "Clubs",
                             "value": "2",
                             "praxis": "blank",
-                            "location": "deck",
+                            "location": "hand",
                             "xp": 0,
                             "max_xp": 2,
                             "owner": "128971529693298688"
@@ -89,7 +89,7 @@
                             "suit": "Clubs",
                             "value": "3",
                             "praxis": "blank",
-                            "location": "deck",
+                            "location": "hand",
                             "xp": 0,
                             "max_xp": 3,
                             "owner": "128971529693298688"
@@ -125,7 +125,7 @@
                             "suit": "Clubs",
                             "value": "4",
                             "praxis": "blank",
-                            "location": "deck",
+                            "location": "hand",
                             "xp": 0,
                             "max_xp": 4,
                             "owner": "128971529693298688"
@@ -179,7 +179,7 @@
                             "suit": "Diamonds",
                             "value": "5",
                             "praxis": "blank",
-                            "location": "deck",
+                            "location": "hand",
                             "xp": 0,
                             "max_xp": 5,
                             "owner": "128971529693298688"

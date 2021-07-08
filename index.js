@@ -103,12 +103,12 @@ client.on('message', message=>{
     }
 
     // perform a soft save whenever the GM speaks to the bot, just in case the bot ever goes down.
-    if (message.author.id == mygame.admin){
-        client.softsavedgames [message.author.id+' in '+message.channel.id] = {
-            game: mygame
-        }
-        fs.writeFileSync('./softsavedgames.json',JSON.stringify(client.softsavedgames, null, 4));
-    }
+    //if (message.author.id == mygame.admin){
+    //    client.softsavedgames [message.author.id+' in '+message.channel.id] = {
+    //        game: mygame
+    //    }
+    //    fs.writeFileSync('./softsavedgames.json',JSON.stringify(client.softsavedgames, null, 4));
+    //}
 
     let args = message.content.substring(PREFIX.length).split(/ +/); //I assume this mean args are split by spaces
     switch (args[0].toLowerCase()){
@@ -155,6 +155,7 @@ client.on('message', message=>{
 
 
         case 'check':
+            Deck.softsave(client,mygame);
             deckid = Deck.find_deck_id(mygame, message.author.id);
             if (message.author.id == mygame.admin) {
                 embed = new Discord.MessageEmbed();
@@ -165,6 +166,7 @@ client.on('message', message=>{
             }
 
         case 'think':
+            Deck.softsave(client,mygame);
             if (args[1] == 'quickly'){
                 deckid = Deck.find_deck_id(mygame, message.author.id);
                 client.commands.get('thinkquickly').execute(message,mygame.decks[deckid],mygame);
@@ -174,6 +176,7 @@ client.on('message', message=>{
             }
 
         case 'add':
+            Deck.softsave(client,mygame);
             if (args.length<2){
                 message.channel.send('Ping the user you want to add to the game, !add @username');
             } else {
@@ -207,6 +210,7 @@ client.on('message', message=>{
         
 
         case 'draw':
+            Deck.softsave(client,mygame);
             deckid = Deck.find_deck_id(mygame, message.author.id);
             draw_n = parseInt(args[1]);
 
@@ -434,6 +438,7 @@ client.on('message', message=>{
             
 
         case 'play':
+            Deck.softsave(client,mygame);
             // confirm we have the card
             // instead of this being fixed in place, we could have it look for "of", and choose args[n-1], args[n+1]? Might be weird. Maybe only if the fixed attempt doesn't work?
             let do_resist = args.includes('-resist');
@@ -614,6 +619,7 @@ client.on('message', message=>{
             break;
 
             case 'harm':
+                Deck.softsave(client,mygame);
                 // confirm we have the card
                 // instead of this being fixed in place, we could have it look for "of", and choose args[n-1], args[n+1]? Might be weird. Maybe only if the fixed attempt doesn't work?
                 // only GM should be able to do this
@@ -693,6 +699,8 @@ client.on('message', message=>{
 
 
         case 'motif':
+            Deck.softsave(client,mygame);
+
             if (args.length > 1){
                 m_suit = args[1]; 
             } else {
@@ -752,6 +760,7 @@ client.on('message', message=>{
 
 
         case 'reshuffle':
+            Deck.softsave(client,mygame);
             if (args.length > 1){
                 message.channel.send('Please format your request to reshuffle like this: !reshuffle');
                 break;
@@ -799,7 +808,8 @@ client.on('message', message=>{
                 message.channel.send('Looks like <@!'+mygame.admin+'> has an active game going. Ask them to !save and !close their game first');
             } else {
                 thisgameindex = all_games.findIndex(game => game.channelID == message.channel.id);
-                attempt_to_load = client.savedgames[message.author.id + ' in ' + message.channel.id];
+                unparsed_attempt_to_load = fs.readFileSync('softsavedgames.json');
+                attempt_to_load = JSON.parse(unparsed_attempt_to_load);
 
                 if (typeof attempt_to_load == 'undefined'){
                     message.channel.send('Failure to load game. You either have no saved games, or are in the wrong channel.'+
@@ -810,13 +820,17 @@ client.on('message', message=>{
 
                 if (args.filter(cmd => cmd == '-quick').length < 1) {
                     //Goes here when we don't specify quickload
-                    mygame = client.savedgames [message.author.id+' in '+message.channel.id].game;
+                    unparsed_mygame = fs.readFileSync('savedgames.json');
+                    mygame = JSON.parse(unparsed_mygame)[message.author.id+' in '+message.channel.id].game;
                     mygame.__proto__ = Deck.Praxisgame.prototype;
                 } else {
                     //Goes here when we do specify quickload
-                    mygame = client.softsavedgames [message.author.id+' in '+message.channel.id].game;
+                    unparsed_mygame = fs.readFileSync('softsavedgames.json');
+                    mygame = JSON.parse(unparsed_mygame)[message.author.id+' in '+message.channel.id].game;
                     mygame.__proto__ = Deck.Praxisgame.prototype;
                 }
+                mygame.decks.__proto__ = Deck.deck.prototype;
+                mygame.lastcheck.__proto__ = Discord.MessageEmbed.prototype;
                 mygame.active = true;
                 for (k = 0; k < mygame.decks.length; k++) {
                     for (j = 0; j < mygame.decks[k].cards.length; j++) {
@@ -834,8 +848,46 @@ client.on('message', message=>{
             }
             break;
 
+        case 'undo':
+
+            thisgameindex = all_games.findIndex(game => game.channelID == message.channel.id);
+            unparsed_attempt_to_load = fs.readFileSync('softsavedgames.json');
+            attempt_to_load = JSON.parse(unparsed_attempt_to_load)[message.author.id+' in '+message.channel.id].game;
+
+            if (typeof attempt_to_load == 'undefined'){
+                message.channel.send('Failure to load game. You either have no saved games, or are in the wrong channel.'+
+               'If you would like to move a game from another channel to this one, send a command using the !migrate function from that original channel.');
+                console.log(message.author.id + ' in ' + message.channel.id);
+                return;
+            }
+
+            unparsed_mygame = fs.readFileSync('softsavedgames.json');
+            mygame = JSON.parse(unparsed_mygame)[message.author.id+' in '+message.channel.id].game;
+            mygame.__proto__ = Deck.Praxisgame.prototype;
+            mygame.decks.__proto__ = Deck.deck.prototype;
+            mygame.lastcheck.__proto__ = Discord.MessageEmbed.prototype;
+            mygame.active = true;
+
+            for (k = 0; k < mygame.decks.length; k++) {
+                mygame.decks[k].__proto__ = Deck.deck.prototype; //When we load in the deck, it registers each deck as a Deck.deck object now.
+                for (j = 0; j < mygame.decks[k].cards.length; j++) {
+                    mygame.decks[k].cards[j].__proto__ = Deck.card.prototype; //When we load in the deck, it doesn't register the cards as Deck.card objects, so this fixes it.
+                }
+            }
+
+            all_games[thisgameindex] = mygame;
+            
+            //console.log(mygame.decks[0]);
+
+            message.channel.send('Quick load to last state, Game ID: '+mygame.ID);
+            for (i=0; i<mygame.decks.length; i++){
+                message.channel.send(mygame.decks[i].role + ' ' + i + ': <@!' + mygame.decks[i].user + '>');
+            }
+            break;
+
 
         case 'force':
+            Deck.softsave(client,mygame);
             if (args.length < 7){
                 message.channel.send('Forces properties of a card. Format as !force @player value of suit property input');
                 return;
@@ -970,6 +1022,7 @@ client.on('message', message=>{
 
         case 'Answer':
         case 'answer':
+            Deck.softsave(client,mygame);
             if (mygame.session == 0){
                 deckid = Deck.find_deck_id(mygame,message.author.id);
                 if (deckid == -1){
@@ -1040,6 +1093,7 @@ client.on('message', message=>{
             return;
 
         case 'swap':
+            Deck.softsave(client,mygame);
             // Allows you to trade cards with another player. A card from the calling player's hand goes to the receiving player
             let sender = {
                 deckid: Deck.find_deck_id(mygame,message.author.id),
@@ -1089,6 +1143,7 @@ client.on('message', message=>{
             break;
         
         case 'crucible':
+            Deck.softsave(client,mygame);
             // Should be !crucible value of suit and needs to have a praxis. Will interact with Praxisgame.lastcheck
             if (args.length < 4) {
                 message.channel.send('Please format as !crucible #value of #suit. Crucibles must have a Praxis and be in your hand.');
@@ -1131,6 +1186,7 @@ client.on('message', message=>{
 
 
         case 'migrate':
+            Deck.softsave(client,mygame);
             // move a game from one channel to another in the same server
             if (args.length < 2) {
                 message.channel.send('Please format as !migrate #channel.');
