@@ -1288,11 +1288,17 @@ client.on('message', message=>{
                     //console.log(chancheck);
                     if (chancheck == true) {
                         all_games.pop(all_games.indexOf(eachgame));
-                        fs.writeFileSync('./savedgames.json',JSON.stringify(client.softsavedgames, null, 4));
-                        fs.writeFileSync('./softsavedgames.json',JSON.stringify(client.softsavedgames, null, 4));
                         message.channel.send('Pruned a game from saved games list');
                     }
                 }
+                client.softsavedgames = []; // hard reset to softsavedgames
+                for (var eachgame in all_games) {
+                    client.softsavedgames [all_games[eachgame].admin+' in '+all_games[eachgame].channelID] = {
+                        game: all_games[eachgame]
+                    }
+                }
+                fs.writeFileSync('./savedgames.json',JSON.stringify(client.softsavedgames, null, 4));
+                fs.writeFileSync('./softsavedgames.json',JSON.stringify(client.softsavedgames, null, 4));
                 // Technically, this could advance a game that someone didn't want saved. The best way would be to load in "savedgames" then prune, but I won't do that.
                 message.channel.send('All done, old games have been pruned from savedgames list');    
                 return;
