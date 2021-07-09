@@ -18,7 +18,8 @@ const Discord = require('discord.js');
 const Deck = require("./deckHelpers.js");
 
 const client = new Discord.Client();
-const token = process.env.DISCORD_BOT_TOKEN;
+//const token = process.env.DISCORD_BOT_TOKEN;
+const token = process.env.DISCORD_BOT_DEV_TOKEN;
 const PREFIX ='!';
 const fs = require('fs');
 let cardsinhand = [];
