@@ -1268,6 +1268,8 @@ client.on('message', message=>{
             } return;
 
         case 'prune':
+            console.log(message.author.id);
+            console.log(superuserid);
             if (message.author.id == superuserid) {
                 for (var eachgame in all_games) {
                     //if channel is deleted
@@ -1291,7 +1293,8 @@ client.on('message', message=>{
                         message.channel.send('Pruned a game from saved games list');
                     }
                 }
-                // Technically, this could advance a game that someone didn't want saved. The best way would be to load in "savedgames" then prune, but I won't do that.    
+                // Technically, this could advance a game that someone didn't want saved. The best way would be to load in "savedgames" then prune, but I won't do that.
+                message.channel.send('All done, old games have been pruned from savedgames list');    
                 return;
             }
             message.channel.send('Only the bot admin can !prune'); 
