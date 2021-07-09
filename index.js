@@ -18,7 +18,9 @@ const Discord = require('discord.js');
 const Deck = require("./deckHelpers.js");
 
 const client = new Discord.Client();
-const token = process.env.DISCORD_BOT_TOKEN;
+//const token = process.env.DISCORD_BOT_TOKEN;
+const token = process.env.DISCORD_BOT_DEV_TOKEN;
+const superuserid = process.env.BOT_ADMIN_ID;
 const PREFIX ='!';
 const fs = require('fs');
 let cardsinhand = [];
@@ -1220,9 +1222,80 @@ client.on('message', message=>{
             } else {
                 message.channel.send('Please format as !migrate #channel.');
             }
+            return;
+        
+        case 'overview':
+            //provide a summary of a specific game in progress
 
+            if (args.length == 2) {
+                if (args.length >= 20) {
+                    sumchan = args[1].substring(2,20);;
+                } else {
+                    message.channel.send('Please format as !overview #channel');
+                }
+            } else {
+                sumchan = message.channel.id;
+            }
+            goi = all_games.filter(game => game.channelID == sumchan); // Make sure that there is a game associated with this channel
+            if (current_game.length > 1){
+                message.channel.send('There are too many games associated with this channel. This is a bug. Honestly, this command should never execute.');
+                return;
+            }
+            if (current_game.length < 1){ // if no game was ever made for this channel...
+                message.channel.send('There is no active game associated with this channel.');
+            } else {
+                Deck.provide_overview(message,goi[0]);
+                //provide overview\
+                // for player in game
+                //      !hand
+                //      !xp
+                // !summary
+            }
+            return;
+                
+    
+        case 'save_and_close':
+            //saves all games in progress, preps the bot to be taken down
+            if (message.author.id == superuserid) {
+                for (var eachgame in all_games) {
+                    client.softsavedgames [all_games[eachgame].admin+' in '+all_games[eachgame].channelID] = {
+                        game: all_games[eachgame]
+                    }
+                    fs.writeFileSync('./savedgames.json',JSON.stringify(client.softsavedgames, null, 4));
+                    message.channel.send('Game saved in channel <#' + all_games[eachgame].channelID +'>.');
+                }
+                message.channel.send('All games saved! The bot is ready to be shut down.');
+            } return;
 
-
+        case 'prune':
+            if (message.author.id == superuserid) {
+                for (var eachgame in all_games) {
+                    //if channel is deleted
+                    guildcheck = client.guilds.cache.get(`${all_games[eachgame].guildID}`);
+                    if (guildcheck == undefined) { //if it comes up undefined, I no longer have access to it (or am using the dev bot). Not sure what happens if the guild is deleted, or if I'll have to code that too.
+                        chancheck = false;
+                    } else {
+                        if (guildcheck.channels.cache.get(`${all_games[eachgame].channelID}`) == undefined) { //server exists but can't find channel
+                            chancheck = true;
+                        } else {
+                        console.log(all_games[eachgame].channelID);
+                        console.log(guildcheck.channels.cache);
+                        chancheck = guildcheck.channels.cache.get(`${all_games[eachgame].channelID}`).deleted;
+                        }
+                    }
+                    //console.log(chancheck);
+                    if (chancheck == true) {
+                        all_games.pop(all_games.indexOf(eachgame));
+                        fs.writeFileSync('./savedgames.json',JSON.stringify(client.softsavedgames, null, 4));
+                        fs.writeFileSync('./softsavedgames.json',JSON.stringify(client.softsavedgames, null, 4));
+                        message.channel.send('Pruned a game from saved games list');
+                    }
+                }
+                // Technically, this could advance a game that someone didn't want saved. The best way would be to load in "savedgames" then prune, but I won't do that.    
+                return;
+            }
+            message.channel.send('Only the bot admin can !prune'); 
+            return;
 
     }
 })

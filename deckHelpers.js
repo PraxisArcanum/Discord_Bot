@@ -373,6 +373,41 @@ function softsave(client,mygame) {
     console.log('softsave');
     fs.writeFileSync('./softsavedgames.json',JSON.stringify(client.softsavedgames, null, 4));
 }
+
+function provide_overview(message,goi) {
+    goi.__proto__ = Praxisgame.prototype;
+    //goi.decks.__proto__ = deck.prototype;
+    //console.log('Did we even get here?');
+    //constructor(admin, messageID, chID, gID) {
+    //    this.ID = messageID;
+    //    this.admin = admin;
+    //    this.session = -1;
+    //    this.guildID = gID;
+    //    this.decks = [new deck(admin, "GM")];
+    //    this.channelID = chID;
+    //    this.lastcheck = new Discord.MessageEmbed();
+    //    this.active = false;
+    //    this.runningmode = 'loud';
+    //    this.xpmode = 'regular';
+    message.channel.send('Here\'s an overview of what is going on in that game');
+    message.channel.send('<@' + goi.admin + '> is running a ' + goi.xpmode + ' game, currently in session ' + goi.session + ' with ' + goi.decks.length + ' players');
+
+    for (var plrs in goi.decks) {
+        message.channel.send('For <@' +goi.decks[plrs].user+ '>:');
+        var surr_message = {
+            channel:  message.channel,
+            author: {
+                id: goi.decks[plrs].user
+            }
+        }
+        show_cards_in_zone(goi,surr_message,[],'hand');
+        show_cards_in_zone(goi,surr_message,[],'deck');
+        show_cards_in_zone(goi,surr_message,[],'xp');
+        show_cards_in_zone(goi,surr_message,[],'discard');
+    }
+
+}
+
 module.exports = {
     card,
     deck,
@@ -393,5 +428,6 @@ module.exports = {
     possible_values,
     show_cards_in_zone,
     update_personal_channel,
-    softsave
+    softsave,
+    provide_overview
 };
