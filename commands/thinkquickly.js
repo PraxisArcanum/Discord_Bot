@@ -2,16 +2,12 @@
 const Deck = require('../deckHelpers.js');
 
 module.exports = {
-    name: 'check',
-    description: 'Draws cards from a deck then replaces them',
-    execute(message, args, deck, embed, curr_game){
+    name: 'thinkquickly',
+    description: 'Draws a card from the deck, plays it to the current check, sends the card to discard',
+    execute(message, deck, curr_game){
 
         // Make sure there are cards to draw
-        if (args.length < 2){
-            num_to_draw = 4; // default check is 4
-        } else {
-            num_to_draw = args[1];
-        }
+        num_to_draw = 1; // default check is 1
 
         // Randomly select the correct number of cards.
         let drawn_cards = [];
@@ -23,18 +19,15 @@ module.exports = {
             return;
         }
         
-        // Prepare the embed.
-        embed.setTitle('Your '+ deck.role + ' check')
-        embed.setColor(0xF1C40F);
-        
         for(let i=0; i < drawn_cards.length; i++) {
             const card = drawn_cards[i];
 
             // Send a message about individual card.
-            message.channel.send('Pulled the ' + card.name());
+            message.channel.send('Thinking quickly added the ' + card.name());
+            card.location = 'discard';
 
             // Add card to embed to show at end.
-            curr_game.lastcheck.addField('GM Card', card.name(),true);
+            curr_game.lastcheck.addField(message.author.username + '\'s Thinking Quickly', card.name(),true);
             curr_game.lastcheck.addField('Praxis', card.praxis,true);
             curr_game.lastcheck.addField('\u200B','\u200B',true);
         }
