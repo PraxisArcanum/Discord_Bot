@@ -1256,17 +1256,6 @@ client.on('message', message=>{
     
         case 'save_and_close':
             //saves all games in progress, preps the bot to be taken down
-
-            //if (message.author.id == mygame.admin){
-            //    client.savedgames [message.author.id+' in '+message.channel.id] = {
-            //        game: mygame
-            //    }
-            //    fs.writeFileSync('./savedgames.json',JSON.stringify(client.savedgames, null, 4));
-            //    message.channel.send('Game saved!');
-            //} else {
-            //    message.channel.send('You are not the admin of the current game, <@!'+mygame.admin+'> is! Please ask them to !save and !close their game.')
-            //}
-            //break;
             if (message.author.id == superuserid) {
                 for (var eachgame in all_games) {
                     client.softsavedgames [all_games[eachgame].admin+' in '+all_games[eachgame].channelID] = {
@@ -1278,6 +1267,35 @@ client.on('message', message=>{
                 message.channel.send('All games saved! The bot is ready to be shut down.');
             } return;
 
+        case 'prune':
+            if (message.author.id == superuserid) {
+                for (var eachgame in all_games) {
+                    //if channel is deleted
+                    guildcheck = client.guilds.cache.get(`${all_games[eachgame].guildID}`);
+                    if (guildcheck == undefined) { //if it comes up undefined, I no longer have access to it (or am using the dev bot). Not sure what happens if the guild is deleted, or if I'll have to code that too.
+                        chancheck = false;
+                    } else {
+                        if (guildcheck.channels.cache.get(`${all_games[eachgame].channelID}`) == undefined) { //server exists but can't find channel
+                            chancheck = true;
+                        } else {
+                        console.log(all_games[eachgame].channelID);
+                        console.log(guildcheck.channels.cache);
+                        chancheck = guildcheck.channels.cache.get(`${all_games[eachgame].channelID}`).deleted;
+                        }
+                    }
+                    //console.log(chancheck);
+                    if (chancheck == true) {
+                        all_games.pop(all_games.indexOf(eachgame));
+                        fs.writeFileSync('./savedgames.json',JSON.stringify(client.softsavedgames, null, 4));
+                        fs.writeFileSync('./softsavedgames.json',JSON.stringify(client.softsavedgames, null, 4));
+                        message.channel.send('Pruned a game from saved games list');
+                    }
+                }
+                // Technically, this could advance a game that someone didn't want saved. The best way would be to load in "savedgames" then prune, but I won't do that.    
+                return;
+            }
+            message.channel.send('Only the bot admin can !prune'); 
+            return;
 
     }
 })
