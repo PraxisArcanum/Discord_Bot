@@ -1281,7 +1281,7 @@ client.on('message', message=>{
                             chancheck = true;
                         } else {
                         console.log(all_games[eachgame].channelID);
-                        console.log(guildcheck.channels.cache);
+                        //console.log(guildcheck.channels.cache);
                         chancheck = guildcheck.channels.cache.get(`${all_games[eachgame].channelID}`).deleted;
                         }
                     }
