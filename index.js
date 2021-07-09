@@ -18,8 +18,8 @@ const Discord = require('discord.js');
 const Deck = require("./deckHelpers.js");
 
 const client = new Discord.Client();
-//const token = process.env.DISCORD_BOT_TOKEN;
-const token = process.env.DISCORD_BOT_DEV_TOKEN;
+const token = process.env.DISCORD_BOT_TOKEN;
+//const token = process.env.DISCORD_BOT_DEV_TOKEN;
 const superuserid = process.env.BOT_ADMIN_ID;
 const PREFIX ='!';
 const fs = require('fs');
@@ -1273,7 +1273,7 @@ client.on('message', message=>{
                     //if channel is deleted
                     guildcheck = client.guilds.cache.get(`${all_games[eachgame].guildID}`);
                     if (guildcheck == undefined) { //if it comes up undefined, I no longer have access to it (or am using the dev bot). Not sure what happens if the guild is deleted, or if I'll have to code that too.
-                        chancheck = false;
+                        chancheck = true;
                     } else {
                         if (guildcheck.channels.cache.get(`${all_games[eachgame].channelID}`) == undefined) { //server exists but can't find channel
                             chancheck = true;
